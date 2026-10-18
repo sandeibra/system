@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mfumo wa Mahudhurio</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#f4f6fa;--card:#fff;--tx:#1b2430;--mu:#667085;--bd:#dde3ec;--pr:#2457d6;--prt:#fff;--ok:#16794a;--bad:#b42318;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="white"]{--bg:#f4f6fa;--card:#fff;--tx:#1b2430;--mu:#667085;--bd:#dde3ec;--pr:#2457d6;--prt:#fff;--ok:#16794a;--bad:#b42318}
+:root[data-theme="dark"]{--bg:#10141b;--card:#1a212c;--tx:#e8edf5;--mu:#98a2b3;--bd:#2d3748;--pr:#6c93ff;--prt:#0b1020;--ok:#4ade80;--bad:#f87171}
+:root[data-theme="orange"]{--bg:#fff4e8;--card:#fffdfa;--tx:#2b1708;--mu:#8a5a33;--bd:#f6c9a0;--pr:#d9480f;--prt:#fff;--ok:#15803d;--bad:#b42318}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+.themes button{background:var(--card);color:var(--tx);border:2px solid var(--bd)}.themes button.on{border-color:var(--pr);background:var(--pr);color:var(--prt)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:16px}
+h1,h2{margin:0 0 10px}h1{font-size:22px}h2{font-size:17px}
+input,select,button{font:inherit;padding:9px 11px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx)}
+button{background:var(--pr);color:var(--prt);border:0;cursor:pointer;font-weight:600}
+button.sec{background:transparent;color:var(--tx);border:1px solid var(--bd)}button.del{background:var(--bad);color:#fff;padding:6px 10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.grow{flex:1;min-width:130px}
+.top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.date{font-weight:700;font-size:18px}.mu{color:var(--mu);font-size:13px}
+nav{display:flex;gap:6px;margin:12px 0;flex-wrap:wrap}nav button{background:var(--card);color:var(--tx);border:1px solid var(--bd)}nav button.on{background:var(--pr);color:var(--prt);border-color:var(--pr)}
+.sc{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:520px}th,td{padding:8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}th{color:var(--mu);font-size:13px}
+.login{max-width:360px;margin:12vh auto}.login input{width:100%;margin-bottom:10px}.err{color:var(--bad);min-height:20px}
+.sb{display:inline-block;padding:2px 9px;border-radius:99px;border:1px solid var(--bd);font-size:12px}
+.btns{display:flex;gap:6px;flex-wrap:wrap}.btns button{background:var(--card);color:var(--tx);border:1px solid var(--bd)}.btns button.on{background:var(--ok);color:#fff;border-color:var(--ok)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:30;max-width:90%}.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}.modal .card{max-width:380px;margin:0}
+.hide{display:none}button:disabled{opacity:.5;cursor:not-allowed}
+.blink{color:var(--bad);font-weight:700;animation:bl 1s steps(2,start) infinite}@keyframes bl{50%{opacity:.15}}.blinky{color:#b7791f;font-weight:700;animation:bl 1s steps(2,start) infinite}.blinkg{color:var(--ok);font-weight:700;animation:bl 1s steps(2,start) infinite}.dotg{color:var(--ok);font-weight:700}
+@media (prefers-reduced-motion:reduce){.blink,.blinky,.blinkg{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div id="login" class="card login">
+  <h1>🔐 Ingia</h1>
+  <div class="mu" id="d0"></div><div class="date" id="clock0" style="margin-bottom:10px"></div>
+  <input id="u" placeholder="Jina la mtumiaji (username)" autocomplete="username">
+  <input id="p" type="password" placeholder="Nenosiri (password)" autocomplete="current-password">
+  <div class="err" id="err"></div>
+  <button style="width:100%" onclick="login()">Ingia</button>
+  <div class="row themes" style="margin-top:12px"><span class="mu">Theme:</span><span id="lth" class="row"></span></div>
+</div>
+
+<div id="app" class="hide">
+  <div class="card top">
+    <div><div class="date" id="d1"></div><div class="mu" id="clock"></div></div>
+    <div class="row"><span id="who" class="mu"></span><button class="sec" onclick="logout()">Toka</button></div>
+  </div>
+  <nav id="nav"></nav>
+  <div id="view"></div>
+</div>
+</div>
+<div id="toast" class="toast hide"></div><div id="modal" class="modal hide"><div class="card"><p id="mm"></p><div class="row"><button onclick="ans(true)">Ndiyo</button><button class="sec" onclick="ans(false)">Hapana</button></div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script>
+const ST=["Present","Off duty","Sick","Sick Leave","Annual Leave","Maternity Leave","Emergency","Absent"];
+const STAFF=["Cashier","Customer Care"],SH=["Asubuhi","Mchana"];
+let S={users:[{id:1,name:"Administrator",username:"admin",password:"admin123",role:"Admin"}],att:{},shifts:{}};
+try{const r=localStorage.getItem("ams2");if(r)S=JSON.parse(r)}catch(e){}
+S.closed=S.closed||{};S.kd=S.kd||{};S.leaves=S.leaves||[];S.svl=S.svl||[];S.abs=S.abs||{};S.vit=S.vit||{};S.mauzo=S.mauzo||[];S.layout=S.layout||{};
+S.kl=Array.isArray(S.kl)&&S.kl.length?S.kl:["Morocco","Gerezani","Kivukoni","Ubungo","Kimara"];const KANDA=S.kl;
+// Pakia state ya Supabase bila kuvunja reference ya KANDA inayotumiwa na UI.
+function hydrateState(remote){
+ const incoming=remote&&typeof remote==="object"?remote:{};
+ const keepKanda=KANDA;
+ Object.assign(S,incoming);
+ S.kl=keepKanda;
+ const incomingKanda=Array.isArray(incoming.kl)&&incoming.kl.length?incoming.kl:["Morocco","Gerezani","Kivukoni","Ubungo","Kimara"];
+ keepKanda.splice(0,keepKanda.length,...incomingKanda);
+ S.users=Array.isArray(S.users)?S.users:[];
+ S.att=S.att||{};S.shifts=S.shifts||{};S.closed=S.closed||{};S.kd=S.kd||{};
+ S.leaves=S.leaves||[];S.svl=S.svl||[];S.abs=S.abs||{};S.vit=S.vit||{};
+ S.mauzo=S.mauzo||[];S.layout=S.layout||{};
+}
+// WEKA Supabase Project URL na anon/publishable key hapa chini.
+const SUPABASE_URL="WEKA_SUPABASE_PROJECT_URL_HAPA";
+const SUPABASE_ANON_KEY="WEKA_SUPABASE_ANON_KEY_HAPA";
+const SUPABASE_TABLE="attendance_app_state";
+let DB=null,RO=false,_ready=false,_pend=false,_dirty=false,_late=false,_defer=false,_t=null,_cfg=null,_days=null,_last={},_seeded=false,_channel=null;
+const save=()=>{try{localStorage.setItem("ams2",JSON.stringify(S))}catch(e){}
+ if(DB&&!RO){_dirty=true;clearTimeout(_t);_t=setTimeout(flush,500)}};
+/* Data inagawanywa: cfg/main (watumiaji, kanda, vituo, likizo) + day/<tarehe> (mahudhurio, shifts, mauzo ya siku hiyo) */
+function splitS(){const D={},g=d=>D[d]=D[d]||{att:{},shifts:{},kd:{},closed:{},mauzo:[]};
+ ["att","shifts","kd","closed"].forEach(f=>Object.keys(S[f]||{}).forEach(k=>{const i=k.indexOf("|");g(k.slice(0,i))[f][k.slice(i+1)]=S[f][k]}));
+ (S.mauzo||[]).forEach(m=>g(m.d).mauzo.push(m));return D}
+const cfgOf=()=>({users:S.users,kl:S.kl,vit:S.vit,leaves:S.leaves,svl:S.svl,abs:S.abs,layout:S.layout});
+function stamp(){const D=splitS();_last={"cfg/main":JSON.stringify(cfgOf())};Object.keys(D).forEach(d=>{_last["day/"+d]=JSON.stringify(D[d])})}
+async function flush(){
+ if(!DB||RO||_pend||!_dirty)return;
+ _pend=true;
+ try{
+  do{
+   _dirty=false;
+   const payload={id:"main",state:S,updated_at:new Date().toISOString()};
+   const {error}=await DB.from(SUPABASE_TABLE).upsert(payload,{onConflict:"id"});
+   if(error)throw error;
+  }while(_dirty);
+ }catch(e){
+  _dirty=false;
+  note("Kuhifadhi mtandaoni kumeshindikana: "+(e.message||e.code||"hitilafu")+". Hakikisha Supabase URL, key na ruhusa (RLS) zimewekwa.");
+ }finally{
+  _pend=false;
+  if(_late){_late=false;onRemote()}
+ }
+}
+function applyRemote(){const c=_cfg;if(!c)return;const DM=_days||new Map();
+ S.users=c.users||S.users;S.vit=c.vit||{};S.leaves=c.leaves||[];S.svl=c.svl||[];S.abs=c.abs||{};S.layout=c.layout||{};
+ S.kl.splice(0,S.kl.length,...(c.kl&&c.kl.length?c.kl:S.kl));
+ const a={},sh={},kd={},cl={},mz=[];
+ [...DM.keys()].sort().forEach(d=>{const b=DM.get(d)||{};
+  [[a,"att"],[sh,"shifts"],[kd,"kd"],[cl,"closed"]].forEach(([o,f])=>Object.keys(b[f]||{}).forEach(u=>{o[d+"|"+u]=b[f][u]}));
+  (b.mauzo||[]).forEach(m=>mz.push(m))});
+ S.att=a;S.shifts=sh;S.kd=kd;S.closed=cl;S.mauzo=mz;stamp();
+ if(me){const u=S.users.find(x=>x.id===me.id);if(u)me=u;else{logout();note("Akaunti yako imeondolewa.")}}}
+function onRemote(){if(_pend||_dirty){_late=true;return}if(!_cfg)return;applyRemote();_ready=true;softDraw()}
+function softDraw(){if(!me)return;const a=document.activeElement;if(a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)){_defer=true;return}draw()}
+document.addEventListener("focusout",()=>{if(_defer){_defer=false;setTimeout(softDraw,80)}});
+async function initSync(){
+ const configured=SUPABASE_URL.startsWith("https://")&&!SUPABASE_URL.includes("WEKA_")&&SUPABASE_ANON_KEY.length>20&&!SUPABASE_ANON_KEY.includes("WEKA_");
+ if(!configured||!window.supabase||!window.supabase.createClient){
+  _ready=true;
+  note("Supabase haijaunganishwa. Weka Project URL na anon/publishable key; kwa sasa taarifa zinahifadhiwa kwenye kifaa hiki tu.");
+  return;
+ }
+ try{
+  DB=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  const {data,error}=await DB.from(SUPABASE_TABLE).select("state").eq("id","main").maybeSingle();
+  if(error)throw error;
+  if(data&&data.state){
+   hydrateState(data.state);
+   _last.main=JSON.stringify(S);
+  }else{
+   const {error:writeError}=await DB.from(SUPABASE_TABLE).upsert({id:"main",state:S,updated_at:new Date().toISOString()},{onConflict:"id"});
+   if(writeError)throw writeError;
+  }
+  _channel=DB.channel("attendance-live-sync")
+   .on("postgres_changes",{event:"*",schema:"public",table:SUPABASE_TABLE,filter:"id=eq.main"},payload=>{
+    if(!payload.new||!payload.new.state)return;
+    if(_dirty||_pend){_late=true;return}
+    hydrateState(payload.new.state);
+    _last.main=JSON.stringify(S);
+    if(me){const u=S.users.find(x=>x.id===me.id);if(u)me=u;else logout();softDraw()}
+   }).subscribe();
+  _ready=true;
+  if(me)draw();
+  note("Imeunganishwa na Supabase. Mabadiliko yanasawazishwa live.");
+ }catch(e){
+  DB=null;_ready=true;
+  note("Supabase imeshindwa kuunganishwa: "+(e.message||e.code||"hitilafu"));
+ }
+}
+const syncBar=()=>DB?'<div class="mu" style="text-align:right;margin-bottom:6px">🟢 Live: Supabase — mabadiliko yanashirikishwa kwa vifaa vyote</div>':'<div class="card" style="border-left:4px solid #e08a00"><b>⚠ Hali ya kifaa kimoja.</b> Supabase haijaunganishwa; taarifa hazitasawazishwa kwenye vifaa vingine.</div>';
+let me=null,tab="mark",markDate=iso(new Date()),rp="day",rd=iso(new Date()),rd2=iso(new Date()),ar="Supervisor",an="",rs="all",rg="all",rsh="all",sr="Cashier",sn="",spf="",ssh="Asubuhi",sk="Morocco",mkU="",mkQ="",rk="all",mkS="Present",okd="Morocco";
+function iso(d){const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)}
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function fd(x){const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(x||""));return m?(+m[3])+"-"+MON[+m[2]-1]+"-"+m[1]:(x||"")}
+function fmt(d){return d.toLocaleDateString("en-GB",{weekday:"long"})+" "+fd(iso(d))}
+function tick(){const n=new Date();["d0","d1"].forEach(i=>{const e=document.getElementById(i);if(e)e.textContent=fmt(n)});["clock","clock0"].forEach(i=>{const c=document.getElementById(i);if(c)c.textContent=n.toLocaleTimeString("en-GB")})}
+setInterval(tick,1000);tick();
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function note(m){const t=$("toast");t.textContent=m;t.classList.remove("hide");clearTimeout(window._t);window._t=setTimeout(()=>t.classList.add("hide"),3500)}
+let _cf=null;
+function ask(m,f){_cf=f;$("mm").textContent=m;$("modal").classList.remove("hide")}
+function ans(y){$("modal").classList.add("hide");const f=_cf;_cf=null;if(y&&f)f()}
+const nm=id=>(S.users.find(u=>u.id===id)||{name:"?"}).name;
+const adm=()=>me&&me.role==="Admin",afs=()=>me&&me.role==="Afisa",mgr=()=>adm()||afs();
+const staff=()=>S.users.filter(u=>STAFF.includes(u.role));
+const rlist=()=>staff().filter(u=>(rg==="all"||u.role===rg)&&(rk==="all"||u.kanda===rk)&&(rsh==="all"||!u.shift||u.shift===rsh));
+function login(){if(!_ready){$("err").textContent="Inapakia data za mtandao, jaribu tena baada ya sekunde chache";return}const u=S.users.find(x=>x.username&&x.username===$("u").value.trim()&&x.password===$("p").value);
+ if(!u){$("err").textContent="Jina au nenosiri si sahihi";return}
+ enter(u)}
+function enter(u){me=u;$("login").classList.add("hide");$("app").classList.remove("hide");$("who").textContent=u.name+" ("+u.role+")";tab=afs()?"rep":"mark";navOpen=false;draw()}
+function logout(){me=null;$("app").classList.add("hide");$("login").classList.remove("hide");$("p").value="";$("err").textContent=""}
+let navOpen=false;
+function draw(){
+ const t=[...(afs()?[]:[["mark","✅ Mark Attendance"]]),["rep","📊 Reports"],["lv","🏖️ Likizo"],["mau","💰 Mauzo"]];if(adm()){t.push(["lay","📐 Layout"]);t.push(["shf","🕒 Shifts"])}if(mgr()){t.push(["stf","🧑‍💼 Staff"]);t.push(["usr","🔑 Users (Login)"])}t.push(["set","⚙️ Settings"]);
+ const cur=t.filter(x=>x[0]===tab);$("nav").innerHTML=(navOpen?t:cur).map(x=>`<button class="${tab===x[0]?"on":""}" onclick="tab='${x[0]}';navOpen=false;draw()">${x[1]}</button>`).join("")+`<button class="sec" onclick="navOpen=!navOpen;draw()">${navOpen?"✖ Funga menyu":"☰ Menyu"}</button>`;
+ $("view").innerHTML=syncBar()+lvBanner()+(tab==="lv"?vLikizo():tab==="mau"?vMauzo():tab==="set"?vSet():tab==="mark"?vMark():tab==="rep"?vRep():tab==="stf"?vStf():tab==="shf"?vShf():tab==="lay"?vLay():vUsr());
+}
+function missingFor(d,uid){const sh=S.shifts[d+"|"+uid],kd=S.kd[d+"|"+uid];
+ return staff().filter(u=>(!sh||!u.shift||u.shift===sh)&&(!kd||!u.kanda||u.kanda===kd)&&!S.att[d+"|"+u.id])}
+function pendingDay(uid){const t=iso(new Date()),ds=Object.keys(S.shifts).filter(k=>k.endsWith("|"+uid)&&k.slice(0,10)<t).map(k=>k.slice(0,10)).sort();
+ for(const d of ds){const m=missingFor(d,uid);if(m.length)return{d,n:m.length}}return null}
+function openShift(sh){const k=iso(new Date())+"|"+me.id;if(S.shifts[k]){note("Umeshafungua shift leo.");return}
+ const pd=pendingDay(me.id);if(pd){note("Huwezi kufungua shift mpya. Bado hujajaza wafanyakazi "+pd.n+" wa tarehe "+pd.d+". Wasiliana na Admin.");return}
+ if(!okd){note("Chagua kanda kwanza");return}
+ const kd=okd;
+ ask("Fungua shift ya "+sh+" kanda ya "+kd+"? Huwezi kufungua shift/kanda nyingine leo.",()=>{S.shifts[k]=sh;S.kd[k]=kd;save();draw()})}
+function missingMau(d,uid){const sh=S.shifts[d+"|"+uid],kd=S.kd[d+"|"+uid];
+ return staff().filter(u=>u.role==="Cashier"&&(!sh||!u.shift||u.shift===sh)&&(!kd||!u.kanda||u.kanda===kd)&&(S.att[d+"|"+u.id]||{}).s==="Present"&&!S.mauzo.some(m=>m.d===d&&m.cid===u.id&&m.kd===kd&&m.sh===sh))}
+function closeShift(){const k=iso(new Date())+"|"+me.id;if(S.closed[k])return;
+ const m=missingFor(iso(new Date()),me.id);if(m.length){note("Huwezi kufunga shift. Bado hujajaza wafanyakazi "+m.length+": "+m.slice(0,3).map(u=>u.name).join(", ")+(m.length>3?"...":""));return}
+ const mm=missingMau(iso(new Date()),me.id);if(mm.length){note("Huwezi kufunga shift. Bado hujajaza mauzo ya cashier "+mm.length+": "+mm.slice(0,3).map(u=>u.name).join(", ")+(mm.length>3?"...":""));return}
+ ask("Funga shift yako? Hutaweza kujaza mahudhurio tena leo.",()=>{S.closed[k]=new Date().toLocaleTimeString("en-GB");save();draw()})}
+function reopen(k){ask("Fungua tena shift hii?",()=>{delete S.closed[k];save();draw()})}
+function effDay(){if(adm())return markDate;const t=iso(new Date());if(!S.shifts[t+"|"+me.id]){const pd=pendingDay(me.id);if(pd)return pd.d}return t}
+function mark(uid,d,s){const k=d+"|"+uid,o=S.att[k],t=iso(new Date());
+ if(!adm()&&d!==t){const pd=pendingDay(me.id);if(!pd||pd.d!==d){note("Huwezi kujaza mahudhurio ya tarehe hii.");draw();return}}
+ else{
+ if(!adm()&&!S.shifts[t+"|"+me.id]){note("Fungua shift yako kwanza.");draw();return}
+ if(!adm()&&S.closed[t+"|"+me.id]){note("Shift yako imefungwa.");draw();return}}
+ if(o&&!adm()){note("Mfanyakazi huyu tayari amejazwa leo.");return}
+ const go=()=>{S.att[k]={s:s,by:me.id,sh:adm()?"Admin":S.shifts[d+"|"+me.id],kd:adm()?"":S.kd[d+"|"+me.id]};save();draw()};
+ if(o)ask("Badilisha status iliyopo ("+o.s+")?",go);else go()}
+function setK(id,v){const u=S.users.find(x=>x.id===id);if(u){u.kanda=v;save();note("Kanda imehifadhiwa")}}
+function setSh(id,v){const u=S.users.find(x=>x.id===id);if(u){u.shift=v;save();note("Shift imehifadhiwa")}}
+function mkLabel(u){return (u.pf||"-")+" - "+u.name}
+function markSel(){const d=effDay(),q=($("mkq")?$("mkq").value:mkQ).trim().toLowerCase();
+ if(!q){note("Andika au chagua jina la mfanyakazi kwanza");return}
+ const t=!adm()?S.shifts[d+"|"+me.id]:null,k=!adm()?S.kd[d+"|"+me.id]:null,
+ sl=staff().filter(u=>(!t||!u.shift||u.shift===t)&&(!k||!u.kanda||u.kanda===k)&&(mkR==="all"||u.role===mkR));
+ let m=sl.filter(u=>mkLabel(u).toLowerCase()===q||u.name.toLowerCase()===q||String(u.pf||"").toLowerCase()===q);
+ if(!m.length)m=sl.filter(u=>mkLabel(u).toLowerCase().includes(q));
+ if(!m.length){note("Hakuna mfanyakazi anayelingana na \""+q+"\"");return}
+ if(m.length>1){note("Majina "+m.length+" yanafanana. Andika jina kamili au PF No, au chagua kwenye orodha.");return}
+ mkQ="";mark(m[0].id,d,mkS)}
+function vMark(){
+ const d=effDay(),pend=!adm()&&d!==iso(new Date());let h="";const cl=!adm()&&!pend&&S.closed[d+"|"+me.id],msh=adm()?null:S.shifts[d+"|"+me.id],mk=adm()?null:S.kd[d+"|"+me.id],
+ sl0=staff().filter(u=>(!msh||!u.shift||u.shift===msh)&&(!mk||!u.kanda||u.kanda===mk)),
+ sl=sl0.filter(u=>mkR==="all"||u.role===mkR);
+ if(!adm()){const sh=S.shifts[d+"|"+me.id];
+  if(pend)h+=`<div class="card" style="border-left:4px solid #c0392b"><b>⚠ Kamilisha shift ya nyuma kwanza.</b> Shift ya ${esc(msh)}, kanda ${esc(mk||"-")}, tarehe ${fd(d)}: bado hujajaza wafanyakazi ${missingFor(d,me.id).length}. Ukimaliza utaweza kufungua shift mpya.</div>`;
+  else{
+  if(!sh){const pd=pendingDay(me.id);return (pd?`<div class="card" style="border-left:4px solid #c0392b"><b>⚠ Huwezi kufungua shift mpya.</b> Bado hujajaza wafanyakazi ${pd.n} wa tarehe ${fd(pd.d)}. Wasiliana na Admin ajaze/akamilishe mahudhurio ya siku hiyo.</div>`:"")+`<div class="card"><h2>Fungua Shift</h2><p class="mu"><b>Lazima ufungue shift yako na uchague kanda</b> kabla ya kujaza mahudhurio. Unaruhusiwa shift <b>moja tu</b> na kanda <b>moja tu</b> kwa siku.</p><div class="row" style="margin-bottom:12px"><label class="mu">Kanda:</label><select onchange="okd=this.value">${KANDA.map(x=>`<option ${okd===x?"selected":""}>${x}</option>`).join("")}</select></div><div class="row"><button onclick="openShift('Asubuhi')">🌅 Shift ya Asubuhi</button><button onclick="openShift('Mchana')">☀️ Shift ya Mchana</button></div></div>`}
+  h+=`<div class="card row"><span class="sb">Shift ya leo: ${sh}</span><span class="sb">Kanda: ${esc(mk||"-")}</span>`+(cl?`<span class="sb">🔒 Imefungwa saa ${cl}</span>`:`<button class="del" onclick="closeShift()">🔒 Funga Shift</button>`+(sl0.some(u=>!S.att[d+"|"+u.id])?`<span class="mu">Hawajajazwa bado: ${sl0.filter(u=>!S.att[d+"|"+u.id]).length}</span>`:`<span class="sb">✔ Wote wamejazwa</span>`)+(missingMau(d,me.id).length?`<span class="mu">Mauzo ya cashier yanayosubiri: ${missingMau(d,me.id).length}</span>`:""))+`</div>`}}
+ h+=`<div class="card"><h2>Mark Attendance${msh?" - Kanda ya "+esc(mk||"-")+", shift ya "+msh+" ("+sl.length+")":""}</h2><div class="row" style="margin-bottom:10px">`;
+ h+=adm()?`<label class="mu">Tarehe:</label><input type="date" value="${d}" onchange="markDate=this.value;draw()">`:`<span class="mu">${pend?"Shift ya nyuma: ":"Leo: "}${fd(d)}. Kila mfanyakazi anajazwa mara moja tu kwa siku.</span>`;
+ h+=`<label class="mu">Aina:</label><select onchange="mkR=this.value;draw()">${[["all","Wote"],["Cashier","Cashier"],["Customer Care","Customer Care"]].map(x=>`<option value="${x[0]}" ${mkR===x[0]?"selected":""}>${x[1]}</option>`).join("")}</select></div>`;
+ if(adm()||!cl)h+=`<div class="row" style="margin-bottom:12px"><input class="grow" id="mkq" list="stl" placeholder="Andika au chagua jina / PF No..." autocomplete="off" value="${esc(mkQ)}" oninput="mkQ=this.value" onkeydown="if(event.key===\'Enter\')markSel()"><datalist id="stl">${sl.filter(u=>!S.att[d+"|"+u.id]).map(u=>`<option value="${esc(mkLabel(u))}"></option>`).join("")}</datalist><select onchange="mkS=this.value">${ST.map(x=>`<option ${mkS===x?"selected":""}>${x}</option>`).join("")}</select><button onclick="markSel()">Weka</button></div>`;
+ const TH=`<tr><th>PF No</th><th>Jina kamili</th><th>Nafasi</th><th>Kanda</th><th>Shift</th><th>Hali / Status</th></tr>`,rw=[[],[]];
+ sl.forEach(u=>{const o=S.att[d+"|"+u.id];
+  const lock=cl&&!adm();
+  rw[o?1:0].push(`<tr><td>${esc(u.pf||"-")}</td><td>${esc(u.name)}${lvFlag(u.id)}${abFlag(u.id)}</td><td>${u.role}</td><td>${u.kanda||"-"}</td><td>${u.shift||"Zote"}</td><td>`+(o?`<span class="sb">✔ ${o.s}</span> <span class="mu">na ${esc(nm(o.by))} (${o.sh||"-"}${o.kd?", "+esc(o.kd):""})</span>`:`<span class="mu">${lock?"Haijajazwa (shift imefungwa)":"Haijajazwa"}</span>`)+`</td></tr>`)});
+ const sec=(t,a,c)=>`<h2 style="margin-top:14px">${t} (${a.length})</h2><div class="sc"><table>${TH}${a.join("")||`<tr><td colspan="6" class="mu">${c}</td></tr>`}</table></div>`;
+ return h+sec("⏳ Hawajajazwa",rw[0],sl.length?"Wote wamejazwa 🎉":"Hakuna wafanyakazi waliosajiliwa kwenye kanda/shift hii.")+sec("✔ Waliojazwa",rw[1],"Bado hakuna aliyejazwa.")+`</div>`}
+const ABB={"Present":"P","Off duty":"O","Sick":"S","Sick Leave":"SL","Annual Leave":"AL","Maternity Leave":"ML","Emergency":"E","Absent":"A"},RPL={day:"Siku",week:"Wiki",month:"Mwezi",range:"Tarehe"};
+function logo(){const c=document.createElement("canvas");c.width=480;c.height=160;const x=c.getContext("2d");x.fillStyle="#0b5cab";x.fillRect(0,0,480,160);x.fillStyle="#fff";x.textBaseline="middle";x.font="bold 84px Arial";x.fillText("UDART",24,66);x.font="bold 20px Arial";x.fillText("Usafiri Dar es Salaam Rapid Transit",24,128);return c.toDataURL("image/png")}
+async function dlSave(fn,data){
+ let dl=null;try{dl=window.claude&&await window.claude.use("downloads")}catch(e){}
+ if(dl){try{await dl.save({filename:fn,data:data});note("Imehifadhiwa: "+fn);return}catch(e){if(e&&e.code==="declined")return}}
+ try{const mt=fn.endsWith(".pdf")?"application/pdf":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  const b=new Blob([data],{type:mt}),u=URL.createObjectURL(b),a=document.createElement("a");
+  a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);note("Imepakuliwa: "+fn)}
+ catch(e){note("Export imeshindikana")}}
+function expData(){const days=range(),sel=rs==="all"?null:S.users.find(u=>String(u.id)===rs),list=sel?[sel]:rlist(),day=rp==="day",nw=new Date();
+ const meta=["Kipindi ("+RPL[rp]+"): "+fd(days[0])+(day?"":" -> "+fd(days[days.length-1])),"Wafanyakazi: "+(sel?sel.name+" (PF "+(sel.pf||"-")+")":(rg==="all"?"Wote":rg)+(rsh==="all"?"":" - Shift "+rsh)+(rk==="all"?"":" - Kanda "+rk)+" ("+list.length+")"),"Ime-export na: "+me.name+" ("+me.role+")","Muda: "+fd(iso(nw))+" "+nw.toLocaleTimeString("en-GB")];
+ const head=["PF No","Jina kamili","Nafasi"].concat(day?["Status","Amejazwa na"]:days.map(d=>String(+d.slice(8))).concat(ST.map(x=>ABB[x]),["Haijawekwa"]));
+ const tot=ST.map(()=>0);let tn=0;
+ const rows=list.map(u=>{const c={};let n=0;const r=[u.pf||"-",u.name,u.role];
+  const cs=days.map(d=>{const o=S.att[d+"|"+u.id];if(o)c[o.s]=(c[o.s]||0)+1;else n++;return o});
+  if(day){const o=cs[0];return r.concat([o?o.s:"-",o?nm(o.by)+" ("+(o.sh||"-")+(o.kd?", "+o.kd:"")+")":"-"])}
+  ST.forEach((x,i)=>tot[i]+=c[x]||0);tn+=n;
+  return r.concat(cs.map(o=>o?ABB[o.s]:"-"),ST.map(x=>c[x]||0),[n])});
+ if(!day&&rows.length)rows.push(["JUMLA","",""].concat(days.map(()=>""),tot,[tn]));
+ let head2=null,rows2=null;
+ if(!day){head2=["Tarehe","Siku"].concat(ST,["Haijawekwa","Jumla","% Present"]);
+  rows2=days.map(d=>{const c={};let n=0;list.forEach(u=>{const o=S.att[d+"|"+u.id];if(o)c[o.s]=(c[o.s]||0)+1;else n++});
+   return [fd(d),new Date(d+"T00:00:00").toLocaleDateString("en-GB",{weekday:"long"})].concat(ST.map(x=>c[x]||0),[n,list.length,list.length?Math.round((c.Present||0)/list.length*100)+"%":"-"])})}
+ return{title:"Ripoti ya Mahudhurio - "+RPL[rp],meta,head,rows,head2,rows2,day,fn:"Mahudhurio_"+RPL[rp]+(sel?"_"+(sel.pf||sel.name).toString().replace(/[^\w-]+/g,"_"):(rg==="all"?"":"_"+rg.replace(/\s+/g,""))+(rsh==="all"?"":"_"+rsh)+(rk==="all"?"":"_"+rk))+"_"+rd+(rp==="range"?"_hadi_"+(rd2||rd):"")}}
+function mkSheet(wb,sn,meta,head,rows,img,wd){const ws=wb.addWorksheet(sn);let r=1;
+ if(img){ws.addImage(img,{tl:{col:0,row:0},ext:{width:240,height:80}});r=6}
+ meta.forEach(m=>{ws.getCell(r++,1).value=m});r++;
+ const h=ws.getRow(r++);h.values=head;h.font={bold:true,color:{argb:"FFFFFFFF"}};h.eachCell(c=>{c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF0B5CAB"}};c.alignment={horizontal:"center"}});
+ rows.forEach(x=>{ws.getRow(r++).values=x});
+ for(let i=1;i<=head.length;i++)ws.getColumn(i).width=wd?wd[i-1]:i===2?28:i===1?10:11;return ws}
+async function expXlsx(){if(!window.ExcelJS){note("Maktaba ya Excel haijapakia");return}
+ const D=expData(),wb=new ExcelJS.Workbook(),img=wb.addImage({base64:logo(),extension:"png"}),m=[D.title].concat(D.meta);
+ mkSheet(wb,"Ripoti",m,D.head,D.rows,img);if(D.head2)mkSheet(wb,"Muhtasari kwa Siku",m,D.head2,D.rows2);
+ dlSave(D.fn+".xlsx",await wb.xlsx.writeBuffer())}
+function expPdf(){if(!window.jspdf){note("Maktaba ya PDF haijapakia");return}
+ const D=expData(),p=new window.jspdf.jsPDF({orientation:D.day?"portrait":"landscape",unit:"pt",format:"a4"});
+ p.addImage(logo(),"PNG",30,24,120,40);p.setFontSize(14);p.text(D.title,170,38);p.setFontSize(9);D.meta.forEach((t,i)=>p.text(t,170,52+i*12));
+ const st={fontSize:D.day?9:7,cellPadding:2,halign:"center"},hs={fillColor:[11,92,171]},cs={1:{halign:"left"}},mg={left:30,right:30};
+ p.autoTable({startY:106,head:[D.head],body:D.rows,styles:st,headStyles:hs,columnStyles:cs,margin:mg});
+ if(D.head2)p.autoTable({startY:p.lastAutoTable.finalY+18,head:[D.head2],body:D.rows2,styles:st,headStyles:hs,margin:mg});
+ const n=p.getNumberOfPages(),ft="Ime-export na "+me.name+" - "+D.meta[3].replace("Muda: ","");
+ for(let i=1;i<=n;i++){p.setPage(i);p.setFontSize(8);p.text(ft+"   |   Ukurasa "+i+"/"+n,30,p.internal.pageSize.getHeight()-14)}
+ dlSave(D.fn+".pdf",p.output("arraybuffer"))}
+function range(){const b=new Date(rd+"T00:00:00");let a=new Date(b),z=new Date(b);
+ if(rp==="week"){const k=(b.getDay()+6)%7;a.setDate(b.getDate()-k);z=new Date(a);z.setDate(a.getDate()+6)}
+ if(rp==="month"){a=new Date(b.getFullYear(),b.getMonth(),1);z=new Date(b.getFullYear(),b.getMonth()+1,0)}
+ if(rp==="range"){z=new Date((rd2||rd)+"T00:00:00");if(z<a){const t=a;a=z;z=t}if((z-a)/864e5>366){z=new Date(a);z.setDate(a.getDate()+366)}}
+ const o=[];for(let d=new Date(a);d<=z;d.setDate(d.getDate()+1))o.push(iso(d));return o}
+/* ===== Reports: Mark Attendance / Likizo / Mauzo ===== */
+const PERS=[["day","Siku (Day)"],["week","Wiki (Week)"],["month","Mwezi (Month)"],["range","Chagua tarehe (Kuanzia - Hadi)"]];
+const perCtl=()=>`<select onchange="rp=this.value;draw()">${PERS.map(x=>`<option value="${x[0]}" ${rp===x[0]?"selected":""}>${x[1]}</option>`).join("")}</select><label class="mu">${rp==="range"?"Kuanzia":"Tarehe"}</label><input type="date" value="${rd}" onchange="rd=this.value||rd;draw()">${rp==="range"?`<label class="mu">Hadi</label><input type="date" value="${rd2}" min="${rd}" onchange="rd2=this.value||rd2;draw()">`:""}`;
+const selBox=(v,fn,opts)=>`<select onchange="${fn}=this.value;draw()">${opts.map(x=>`<option value="${esc(x[0])}" ${v===x[0]?"selected":""}>${esc(x[1])}</option>`).join("")}</select>`;
+const perMeta=days=>"Kipindi ("+RPL[rp]+"): "+fd(days[0])+(days.length>1?" -> "+fd(days[days.length-1]):"");
+const nowMeta=()=>{const n=new Date();return["Ime-export na: "+me.name+" ("+me.role+")","Muda: "+fd(iso(n))+" "+n.toLocaleTimeString("en-GB")]};
+const fnSuf=()=>"_"+rd+(rp==="range"?"_hadi_"+(rd2||rd):"");
+const slug=t=>String(t).replace(/[^\w-]+/g,"");
+const wkd=d=>new Date(d+"T00:00:00").toLocaleDateString("en-GB",{weekday:"long"});
+const lvRoles=()=>me.role==="Supervisor"?["Wote","Supervisor","Cashier","Customer Care"]:LR;
+function lvRepData(){const days=range(),a=days[0],z=days[days.length-1];if(!lvRoles().includes(rlk))rlk="Wote";
+ const cl=t=>String(t).replace(/[^\x20-\x7E]/g,"").trim(),
+ L=S.leaves.concat(S.svl.filter(l=>me.role!=="Supervisor"||lrole(l)==="Supervisor")).filter(l=>(rlk==="Wote"||lrole(l)===rlk)&&l.to>=a&&l.from<=z&&(rk==="all"||(l.kd||(S.users.find(y=>y.id===l.sid)||{}).kanda)===rk)).sort((x,y)=>x.from<y.from?-1:1),
+ rows=L.map(l=>{const u=S.users.find(y=>y.id===l.sid)||{};return[l.pf||u.pf||"-",l.name,u.role||"-",l.kd||u.kanda||"-",l.ty||"-",fd(l.from),fd(l.to),dd(l.from,l.to)+1,cl(lvS(l).txt)]});
+ return{title:"Ripoti ya Likizo - "+RPL[rp],meta:[perMeta(days),"Nafasi: "+(rlk==="Wote"?"Wote":rlk)+" | Kanda: "+(rk==="all"?"Zote":rk)].concat(nowMeta()),
+  fn:"Likizo_"+RPL[rp]+"_"+slug(rlk)+(rk==="all"?"":"_"+slug(rk))+fnSuf(),
+  sheets:[{sn:"Likizo",head:["PF No","Jina kamili","Nafasi","Kanda","Aina ya likizo","Kuanzia","Hadi","Siku","Hali"],rows,wd:[12,28,16,14,22,14,14,8,40],ra:[]}]}}
+function mauRows(days){const set=new Set(days);
+ return S.mauzo.filter(m=>set.has(m.d)&&(rk==="all"||m.kd===rk)&&(rsh==="all"||m.sh===rsh)&&(me.role!=="Supervisor"||m.by===me.id)).sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:a.id-b.id)}
+function mauData(){const days=range(),R=mauRows(days),sum=x=>[x.reduce((a,m)=>a+m.tk,0),x.reduce((a,m)=>a+m.tp,0),x.reduce((a,m)=>a+(m.rl||0),0)];
+ const [tk,tp,tr]=sum(R);
+ const rows=R.map(m=>[fd(m.d),m.kd||"-",m.sh||"-",m.pf||"-",m.cn,m.vt,m.tk,m.tp,m.rl==null?"-":m.rl,m.tk+m.tp,nm(m.by)]);
+ if(rows.length)rows.push(["JUMLA","","","","","",tk,tp,tr,tk+tp,""]);
+ const sheets=[{sn:"Mauzo",head:["Tarehe","Kanda","Shift","PF No","Cashier","Kituo","Tiketi (TZS)","Topup (TZS)","Roll","Jumla (TZS)","Ameingiza"],rows,wd:[14,12,10,10,26,20,14,14,10,14,22],ra:[6,7,8,9]}];
+ if(days.length>1){const dr=days.map(d=>{const x=R.filter(m=>m.d===d),[a,b,c]=sum(x);return[fd(d),wkd(d),a,b,c,a+b,x.length]});
+  dr.push(["JUMLA","",tk,tp,tr,tk+tp,R.length]);
+  sheets.push({sn:"Muhtasari kwa Siku",head:["Tarehe","Siku","Tiketi (TZS)","Topup (TZS)","Roll","Jumla (TZS)","Rekodi"],rows:dr,wd:[14,14,14,14,10,14,10],ra:[2,3,4,5,6]})}
+ if(R.length){const ks=KANDA.concat(R.map(m=>m.kd).filter((k,i,a)=>k&&!KANDA.includes(k)&&a.indexOf(k)===i)).filter(k=>R.some(m=>m.kd===k)),
+  kr=ks.map(k=>{const x=R.filter(m=>m.kd===k),[a,b,c]=sum(x);return[k,a,b,c,a+b,x.length]});
+  kr.push(["JUMLA",tk,tp,tr,tk+tp,R.length]);
+  sheets.push({sn:"Muhtasari kwa Kanda",head:["Kanda","Tiketi (TZS)","Topup (TZS)","Roll","Jumla (TZS)","Rekodi"],rows:kr,wd:[16,14,14,10,14,10],ra:[1,2,3,4,5]})}
+ return{title:"Ripoti ya Mauzo - "+RPL[rp],meta:[perMeta(days),"Kanda: "+(rk==="all"?"Zote":rk)+" | Shift: "+(rsh==="all"?"Zote":rsh)].concat(nowMeta()),
+  fn:"Mauzo_"+RPL[rp]+(rk==="all"?"":"_"+slug(rk))+(rsh==="all"?"":"_"+rsh)+fnSuf(),sheets}}
+function renTbl(sh){return `<div class="sc"><table><tr>${sh.head.map(x=>`<th>${esc(x)}</th>`).join("")}</tr>${sh.rows.length?sh.rows.map(r=>`<tr${r[0]==="JUMLA"?' style="font-weight:700"':""}>${r.map(c=>`<td>${typeof c==="number"?tzs(c):esc(c)}</td>`).join("")}</tr>`).join(""):`<tr><td colspan="${sh.head.length}" class="mu">Hakuna rekodi katika kipindi hiki.</td></tr>`}</table></div>`}
+async function xlsxGen(D){if(!window.ExcelJS){note("Maktaba ya Excel haijapakia");return}
+ const wb=new ExcelJS.Workbook(),img=wb.addImage({base64:logo(),extension:"png"}),m=[D.title].concat(D.meta);
+ D.sheets.forEach((sh,i)=>{const ws=mkSheet(wb,sh.sn,m,sh.head,sh.rows,i?null:img,sh.wd);(sh.ra||[]).forEach(k=>{ws.getColumn(k+1).numFmt="#,##0"})});
+ dlSave(D.fn+".xlsx",await wb.xlsx.writeBuffer())}
+function pdfGen(D){if(!window.jspdf){note("Maktaba ya PDF haijapakia");return}
+ const p=new window.jspdf.jsPDF({orientation:"landscape",unit:"pt",format:"a4"}),H=p.internal.pageSize.getHeight();
+ p.addImage(logo(),"PNG",30,24,120,40);p.setFontSize(14);p.text(D.title,170,38);p.setFontSize(9);D.meta.forEach((t,i)=>p.text(t,170,52+i*12));
+ let y=106;
+ D.sheets.forEach((sh,i)=>{if(i){y=p.lastAutoTable.finalY+26;if(y>H-90){p.addPage();y=44}p.setFontSize(10);p.text(sh.sn,30,y);y+=6}
+  const cs={};(sh.ra||[]).forEach(k=>{cs[k]={halign:"right"}});
+  p.autoTable({startY:y,head:[sh.head],body:sh.rows.map(r=>r.map(c=>typeof c==="number"?tzs(c):c)),styles:{fontSize:8,cellPadding:3},headStyles:{fillColor:[11,92,171]},columnStyles:cs,margin:{left:30,right:30},didParseCell:h=>{if(h.section==="body"&&h.row.raw&&h.row.raw[0]==="JUMLA")h.cell.styles.fontStyle="bold"}})});
+ const n=p.getNumberOfPages(),ft=D.meta[2]+" - "+D.meta[3];
+ for(let i=1;i<=n;i++){p.setPage(i);p.setFontSize(8);p.text(ft+"   |   Ukurasa "+i+"/"+n,30,H-14)}
+ dlSave(D.fn+".pdf",p.output("arraybuffer"))}
+function expGen(t,f){const D=t==="lv"?lvRepData():t==="ly"?layData():mauData();
+ if(!D.sheets[0].rows.length){note("Hakuna data ya kuexport katika kipindi hiki");return}
+ if(f==="xlsx")xlsxGen(D);else pdfGen(D)}
+function vRepLv(){const D=lvRepData(),days=range();
+ return `<div class="card"><h2>Report ya Likizo</h2><div class="row" style="margin-bottom:10px">${perCtl()}${selBox(rlk,"rlk",lvRoles().map(x=>[x,x==="Wote"?"Wafanyakazi wote":x]))}${selBox(rk,"rk",[["all","Kanda zote"]].concat(KANDA.map(x=>[x,x])))}<span class="mu">${days[0]} → ${days[days.length-1]}</span><button onclick="expGen('lv','xlsx')">📗 Export Excel</button><button onclick="expGen('lv','pdf')">📕 Export PDF</button></div><div class="mu" style="margin-bottom:8px">Zinaonekana likizo zote zinazogusa kipindi kilichochaguliwa (${D.sheets[0].rows.length}).</div>${renTbl(D.sheets[0])}</div>`}
+function vRepMau(){const D=mauData(),days=range();
+ let h=`<div class="card"><h2>Report ya Mauzo</h2><div class="row" style="margin-bottom:10px">${perCtl()}${selBox(rk,"rk",[["all","Kanda zote"]].concat(KANDA.map(x=>[x,x])))}${selBox(rsh,"rsh",[["all","Shift zote"],["Asubuhi","Asubuhi"],["Mchana","Mchana"]])}<span class="mu">${days[0]} → ${days[days.length-1]}</span><button onclick="expGen('mau','xlsx')">📗 Export Excel</button><button onclick="expGen('mau','pdf')">📕 Export PDF</button></div>${me.role==="Supervisor"?`<div class="mu" style="margin-bottom:8px">Unaona mauzo uliyoyaingiza wewe tu.</div>`:""}${renTbl(D.sheets[0])}</div>`;
+ D.sheets.slice(1).forEach(sh=>{h+=`<div class="card"><h2>${esc(sh.sn)}</h2>${renTbl(sh)}</div>`});
+ return h}
+function layData(){
+ const ki=k=>{const i=KANDA.indexOf(k);return i<0?999:i},si=x=>{const i=SH.indexOf(x);return i<0?9:i};
+ const L=staff().filter(u=>(ryR==="all"||u.role===ryR)&&(rk==="all"||u.kanda===rk)&&(rsh==="all"||u.shift===rsh)).sort((a,b)=>ki(a.kanda)-ki(b.kanda)||si(a.shift)-si(b.shift)||(a.role<b.role?-1:a.role>b.role?1:0)||(a.name<b.name?-1:1));
+ const rows=L.map(u=>{const cy=(u.cyc||[]).filter(k=>KANDA.includes(k));return[u.shift||"-",u.role,u.pf||"-",u.name].concat(KANDA.map((_,i)=>cy[i]||"-"))});
+ const sr=[],cnt=(f)=>L.filter(f).length;let tc=0,tg=0;
+ if(L.length){KANDA.filter(k=>rk==="all"||k===rk).forEach(k=>SH.filter(x=>rsh==="all"||x===rsh).forEach(x=>{
+   const a=cnt(u=>u.kanda===k&&u.shift===x&&u.role==="Cashier"),b=cnt(u=>u.kanda===k&&u.shift===x&&u.role==="Customer Care");
+   if(a+b){sr.push([k,x,a,b,a+b]);tc+=a;tg+=b}}));
+  const f=cnt(u=>!u.kanda||!u.shift),fa=cnt(u=>(!u.kanda||!u.shift)&&u.role==="Cashier"),fb=cnt(u=>(!u.kanda||!u.shift)&&u.role==="Customer Care");
+  if(f){sr.push(["Hawajapangwa","-",fa,fb,f]);tc+=fa;tg+=fb}
+  sr.push(["JUMLA","",tc,tg,tc+tg])}
+ return{title:"Ripoti ya Layout",meta:["Layout ya sasa ya staff kwa kanda na shift (haitegemei tarehe)","Nafasi: "+(ryR==="all"?"Zote":ryR)+" | Shift: "+(rsh==="all"?"Zote":rsh)+" | Kanda: "+(rk==="all"?"Zote":rk)].concat(nowMeta()),
+  fn:"Layout"+(ryR==="all"?"":"_"+slug(ryR))+(rsh==="all"?"":"_"+rsh)+(rk==="all"?"":"_"+slug(rk))+"_"+iso(new Date()),
+  sheets:[{sn:"Muhtasari kwa Kanda",head:["Kanda","Shift","Cashier","Customer Care","Jumla"],rows:sr,wd:[18,12,12,16,10],ra:[2,3,4]},
+   {sn:"Orodha ya Staff",head:["Shift","Nafasi","PF No","Jina kamili"].concat(KANDA.map((_,i)=>"Kanda "+(i+1))),rows,wd:[12,16,12,28].concat(KANDA.map(()=>14)),ra:[]}]}}
+function vRepLay(){const D=layData();
+ let h=`<div class="card"><h2>Report ya Layout</h2><div class="row" style="margin-bottom:10px">${selBox(ryR,"ryR",[["all","Nafasi zote"]].concat(STAFF.map(x=>[x,x])))}${selBox(rsh,"rsh",[["all","Shift zote"]].concat(SH.map(x=>[x,x])))}${selBox(rk,"rk",[["all","Kanda zote"]].concat(KANDA.map(x=>[x,x])))}<button onclick="expGen('ly','xlsx')">📗 Export Excel</button><button onclick="expGen('ly','pdf')">📕 Export PDF</button></div><div class="mu" style="margin-bottom:8px">Mgawanyo wa sasa wa staff kwa kanda na shift (staff ${D.sheets[1].rows.length}).</div>${renTbl(D.sheets[0])}</div>`;
+ return h+`<div class="card"><h2>${esc(D.sheets[1].sn)}</h2>${renTbl(D.sheets[1])}</div>`}
+function vRep(){
+ const T=[["att","✅ Mark Attendance"],["lv","🏖️ Likizo"],["mau","💰 Mauzo"],["ly","📐 Layout"]];
+ return `<div class="card"><div class="row themes">${T.map(x=>`<button class="${rt===x[0]?"on":""}" onclick="rt='${x[0]}';draw()">${x[1]}</button>`).join("")}</div></div>`+(rt==="lv"?vRepLv():rt==="mau"?vRepMau():rt==="ly"?vRepLay():vRepAtt())}
+function vRepAtt(){
+ if(rs!=="all"&&!rlist().some(u=>String(u.id)===rs))rs="all";
+ const days=range(),sel=rs==="all"?null:S.users.find(u=>String(u.id)===rs);if(rs!=="all"&&!sel)rs="all";
+ const list=sel?[sel]:rlist();
+ let h=`<div class="card"><h2>Reports ya Mahudhurio</h2><div class="row" style="margin-bottom:10px">
+ <select onchange="rp=this.value;draw()">${[["day","Siku (Day)"],["week","Wiki (Week)"],["month","Mwezi (Month)"],["range","Chagua tarehe (Kuanzia - Hadi)"]].map(x=>`<option value="${x[0]}" ${rp===x[0]?"selected":""}>${x[1]}</option>`).join("")}</select>
+ <label class="mu">${rp==="range"?"Kuanzia":"Tarehe"}</label><input type="date" value="${rd}" onchange="rd=this.value||rd;draw()">${rp==="range"?`<label class="mu">Hadi</label><input type="date" value="${rd2}" min="${rd}" onchange="rd2=this.value||rd2;draw()">`:""}
+ <select onchange="rg=this.value;rs='all';draw()">${[["all","Wafanyakazi wote"],["Cashier","Cashier"],["Customer Care","Customer Care"]].map(x=>`<option value="${x[0]}" ${rg===x[0]?"selected":""}>${x[1]}</option>`).join("")}</select>
+ <select onchange="rsh=this.value;rs='all';draw()">${[["all","Shift zote"],["Asubuhi","Asubuhi"],["Mchana","Mchana"]].map(x=>`<option value="${x[0]}" ${rsh===x[0]?"selected":""}>${x[1]}</option>`).join("")}</select>
+ <select onchange="rk=this.value;rs='all';draw()">${[["all","Kanda zote"]].concat(KANDA.map(x=>[x,x])).map(x=>`<option value="${x[0]}" ${rk===x[0]?"selected":""}>${x[1]}</option>`).join("")}</select>
+ <span class="mu">${days[0]} → ${days[days.length-1]}</span><button onclick="expXlsx()">📗 Export Excel</button><button onclick="expPdf()">📕 Export PDF</button></div>
+ <div class="sc"><table><tr><th>PF No</th><th>Jina kamili</th><th>Nafasi</th>${ST.map(s=>`<th>${s}</th>`).join("")}<th>Haijawekwa</th></tr>`;
+ const tot={};let tn=0;
+ list.forEach(u=>{const c={};let n=0;days.forEach(d=>{const o=S.att[d+"|"+u.id];if(o)c[o.s]=(c[o.s]||0)+1;else n++});ST.forEach(x=>tot[x]=(tot[x]||0)+(c[x]||0));tn+=n;
+  h+=`<tr><td>${esc(u.pf||"-")}</td><td>${esc(u.name)}</td><td>${u.role}</td>${ST.map(s=>`<td>${rp==="day"?(c[s]?"✔":"-"):(c[s]||0)}</td>`).join("")}<td>${n}</td></tr>`});
+ if(!list.length)h+=`<tr><td colspan="11" class="mu">Hakuna wafanyakazi bado.</td></tr>`;
+ else h+=`<tr><th colspan="3">JUMLA</th>${ST.map(x=>`<th>${tot[x]||0}</th>`).join("")}<th>${tn}</th></tr>`;
+ h+=`</table></div></div>`;
+ if(rp!=="day"){const ab={"Present":"P","Off duty":"O","Sick":"S","Sick Leave":"SL","Annual Leave":"AL","Maternity Leave":"ML","Emergency":"E","Absent":"A"};
+ h+=`<div class="card"><h2>Mahudhurio kwa Tarehe Zote</h2><div class="mu" style="margin-bottom:8px">${ST.map(x=>ab[x]+" = "+x).join(" · ")} · - = Haijawekwa</div><div class="sc"><table style="min-width:0"><tr><th>PF</th><th>Jina</th>${days.map(d=>`<th>${+d.slice(8)}</th>`).join("")}${ST.map(x=>`<th>${ab[x]}</th>`).join("")}</tr>`;
+ list.forEach(u=>{const c={};h+=`<tr><td>${esc(u.pf||"-")}</td><td>${esc(u.name)}</td>`+days.map(d=>{const o=S.att[d+"|"+u.id];if(o)c[o.s]=(c[o.s]||0)+1;return `<td>${o?ab[o.s]:"-"}</td>`}).join("")+ST.map(x=>`<td><b>${c[x]||0}</b></td>`).join("")+`</tr>`});
+ h+=`</table></div></div>`}
+ h+=`<div class="card"><h2>Muhtasari wa Mahudhurio kwa Siku</h2><div class="mu" style="margin-bottom:8px">Idadi ya wafanyakazi kwa kila status, siku kwa siku, ndani ya kipindi kilichochaguliwa.</div><div class="sc"><table><tr><th>Tarehe</th><th>Siku</th>${ST.map(x=>`<th>${x}</th>`).join("")}<th>Haijawekwa</th><th>Jumla</th><th>% Present</th></tr>`;
+ const dt={};let dn=0;
+ days.forEach(d=>{const c={};let n=0;list.forEach(u=>{const o=S.att[d+"|"+u.id];if(o)c[o.s]=(c[o.s]||0)+1;else n++});
+  ST.forEach(x=>dt[x]=(dt[x]||0)+(c[x]||0));dn+=n;
+  const pc=list.length?Math.round((c["Present"]||0)/list.length*100)+"%":"-";
+  h+=`<tr><td>${fd(d)}${d===iso(new Date())?' <span class="sb">Leo</span>':""}</td><td>${new Date(d+"T00:00:00").toLocaleDateString("en-GB",{weekday:"long"})}</td>${ST.map(x=>`<td>${c[x]||0}</td>`).join("")}<td>${n}</td><td>${list.length}</td><td>${pc}</td></tr>`});
+ if(days.length>1)h+=`<tr><th colspan="2">JUMLA</th>${ST.map(x=>`<th>${dt[x]||0}</th>`).join("")}<th>${dn}</th><th>${list.length*days.length}</th><th></th></tr>`;
+ h+=`</table></div></div>`;
+ const shs=["Asubuhi","Mchana","Admin"],sc={Asubuhi:{},Mchana:{},Admin:{}};
+ list.forEach(u=>days.forEach(d=>{const o=S.att[d+"|"+u.id];if(o){const k=sc[o.sh]?o.sh:"Admin";sc[k][o.s]=(sc[k][o.s]||0)+1}}));
+ h+=`<div class="card"><h2>Muhtasari kwa Shift</h2><div class="mu" style="margin-bottom:8px">Idadi ya kila status kwa kila shift ndani ya kipindi kilichochaguliwa.</div><div class="sc"><table><tr><th>Shift</th>${ST.map(x=>`<th>${x}</th>`).join("")}<th>Jumla</th></tr>`;
+ shs.forEach(x=>{const v=sc[x],t=Object.values(v).reduce((a,b)=>a+b,0);if(x==="Admin"&&!t)return;
+  h+=`<tr><td><b>${x==="Admin"?"Admin (marekebisho)":x}</b></td>${ST.map(y=>`<td>${v[y]||0}</td>`).join("")}<td><b>${t}</b></td></tr>`});
+ h+=`</table></div></div>`;
+ if(sel){h+=`<div class="card"><h2>Mahudhurio ya ${esc(sel.name)} (PF ${esc(sel.pf||"-")})</h2><div class="sc"><table><tr><th>Tarehe</th><th>Siku</th><th>Status</th><th>Amejazwa na</th></tr>`;
+  days.forEach(d=>{const o=S.att[d+"|"+sel.id];h+=`<tr><td>${fd(d)}</td><td>${new Date(d+"T00:00:00").toLocaleDateString("en-GB",{weekday:"long"})}</td><td>${o?o.s:'<span class="mu">-</span>'}</td><td>${o?esc(nm(o.by))+" ("+(o.sh||"-")+(o.kd?", "+esc(o.kd):"")+")":""}</td></tr>`});
+  h+=`</table></div></div>`}
+ h+=`<div class="card"><h2>Shifts za Supervisors</h2><div class="sc"><table><tr><th>Tarehe</th><th>Supervisor</th><th>Shift</th><th>Kanda</th><th>Hali</th></tr>`;
+ let r=0;days.forEach(d=>S.users.filter(u=>u.role==="Supervisor").forEach(u=>{const sh=S.shifts[d+"|"+u.id];if(sh){r++;const c2=S.closed[d+"|"+u.id];h+=`<tr><td>${fd(d)}</td><td>${esc(u.pf?u.pf+" - "+u.name:u.name)}</td><td>${sh}</td><td>${esc(S.kd[d+"|"+u.id]||"-")}</td><td>${c2?"🔒 Imefungwa "+c2+(adm()?` <button class="sec" onclick="reopen('${d}|${u.id}')">Fungua tena</button>`:""):"Wazi"}</td></tr>`}}));
+ if(!r)h+=`<tr><td colspan="5" class="mu">Hakuna shift zilizofunguliwa.</td></tr>`;
+ return h+`</table></div></div>`}
+function vStf(){
+ let h=edCard(true)+`<div class="card"><h2>Ongeza Mfanyakazi</h2><div class="row">
+ <select onchange="sr=this.value;sn=$('sn').value;spf=$('sp').value;draw()">${["Cashier","Customer Care"].map(r=>`<option ${sr===r?"selected":""}>${r}</option>`).join("")}</select>
+ <select onchange="ssh=this.value">${SH.map(x=>`<option ${ssh===x?"selected":""}>${x}</option>`).join("")}</select><select onchange="sk=this.value">${KANDA.map(x=>`<option ${sk===x?"selected":""}>${x}</option>`).join("")}</select><input class="grow" id="sp" placeholder="PF No" value="${esc(spf)}"><input class="grow" id="sn" placeholder="Jina kamili" value="${esc(sn)}"><button onclick="addS()">Ongeza</button></div>
+ <div class="mu">Hawana login. Wanajazwa mahudhurio na supervisor, na ripoti zao za siku, wiki na mwezi zinapatikana kwenye Reports.</div><div class="err" id="se"></div></div>`;
+ ["Cashier","Customer Care"].forEach(g=>{const l=S.users.filter(u=>u.role===g);
+  h+=`<div class="card"><h2>${g==="Cashier"?"Cashiers":"Customer Care (Attendants)"} (${l.length})</h2><div class="sc"><table><tr><th>PF No</th><th>Jina kamili</th><th>Kanda</th><th>Shift</th><th></th></tr>`;
+  l.forEach(u=>{h+=`<tr><td>${esc(u.pf||"-")}</td><td>${esc(u.name)}</td><td><select onchange="setK(${u.id},this.value)"><option value="">-</option>${KANDA.map(x=>`<option ${u.kanda===x?"selected":""}>${x}</option>`).join("")}</select></td><td><select onchange="setSh(${u.id},this.value)"><option value="">-</option>${SH.map(x=>`<option ${u.shift===x?"selected":""}>${x}</option>`).join("")}</select></td><td>${adm()?`<button class="sec" onclick="edOpen(${u.id})">✏️ Hariri</button> <button class="del" onclick="delU(${u.id})">Ondoa</button>`:""}</td></tr>`});
+  h+=`</table></div></div>`});
+ return h}
+function addS(){const n=$("sn").value.trim(),p=$("sp").value.trim();
+ if(!p||!n){$("se").textContent="Jaza PF No na jina kamili";return}
+ if(S.users.some(u=>STAFF.includes(u.role)&&String(u.pf).toLowerCase()===p.toLowerCase())){$("se").textContent="PF No tayari imesajiliwa";return}
+ S.users.push({id:Date.now(),pf:p,name:n,role:sr,shift:ssh,kanda:sk});sn="";spf="";save();draw()}
+function vUsr(){
+ let h=edCard(false)+`<div class="card"><h2>Ongeza Mtumiaji wa Login</h2><div class="row">
+ <select onchange="ar=this.value;an=$('nn').value;anf=$('nf').value;draw()">${(adm()?["Supervisor","Afisa","Admin"]:["Supervisor"]).map(r=>`<option ${ar===r?"selected":""}>${r}</option>`).join("")}</select>
+ <input class="grow" id="nf" placeholder="PF No" value="${esc(anf)}"><input class="grow" id="nn" placeholder="Jina kamili" value="${esc(an)}"><input class="grow" id="nu" placeholder="Username"><input class="grow" id="np" placeholder="Password"><button onclick="addU()">Ongeza</button></div><div class="err" id="ue"></div></div>`;
+ [["Supervisor","Supervisors"]].concat(adm()?[["Afisa","Maafisa"],["Admin","Admins"]]:[]).forEach(g=>{
+  const l=S.users.filter(u=>u.role===g[0]);
+  h+=`<div class="card"><h2>${g[1]} (${l.length})</h2><div class="sc"><table><tr><th>PF No</th><th>Jina</th><th>Username</th><th>Nafasi</th><th>Password mpya</th><th></th></tr>`;
+  l.forEach(u=>{h+=`<tr><td>${esc(u.pf||"-")}</td><td>${esc(u.name)}</td><td>${esc(u.username||"-")}</td><td>${adm()&&g[0]!=="Admin"&&u.id!==me.id?`<select onchange="setRole(${u.id},this.value)">${["Supervisor","Afisa"].map(r=>`<option ${u.role===r?"selected":""}>${r}</option>`).join("")}</select>`:esc(u.role)}</td><td>${!adm()?"":u.id===me.id?`<span class="mu">Tumia Settings</span>`:`<div class="row"><input id="pw_${u.id}" type="text" placeholder="Password mpya" style="width:140px"><button onclick="resetPw(${u.id})">Weka</button></div>`}</td><td>${adm()?`<button class="sec" onclick="edOpen(${u.id})">✏️ Hariri</button> `:""}${u.id===me.id||!adm()?"":`<button class="del" onclick="delU(${u.id})">Ondoa</button>`}</td></tr>`});
+  h+=`</table></div></div>`});
+ return h}
+function addU(){const n=$("nn").value.trim(),cr=true;let u,p;if(!adm())ar="Supervisor";const pf=$("nf").value.trim();
+ if(!pf){$("ue").textContent="Jaza PF No";return}
+ if(!n){$("ue").textContent="Jaza jina";return}
+ if(S.users.some(x=>String(x.pf||"").toLowerCase()===pf.toLowerCase())){$("ue").textContent="PF No tayari imesajiliwa";return}
+ if(cr){u=$("nu").value.trim();p=$("np").value;
+  if(!u||!p){$("ue").textContent="Jaza username na password";return}
+  if(S.users.some(x=>x.username===u)){$("ue").textContent="Username tayari ipo";return}}
+ S.users.push({id:Date.now(),pf,name:n,username:u,password:p,role:ar});an="";anf="";save();draw()}
+function setRole(id,r){const u=S.users.find(x=>x.id===id);if(!u||u.role===r||!adm())return;draw();ask("Badilisha nafasi ya "+u.name+" kutoka "+u.role+" kuwa "+r+"?",()=>{u.role=r;save();draw();note("Nafasi imebadilishwa kuwa "+r+" ✔")})}
+function delU(id){ask("Ondoa mtumiaji huyu?",()=>{S.users=S.users.filter(u=>u.id!==id);save();draw()})}
+
+/* ===== Admin: hariri taarifa za watumiaji/wafanyakazi ===== */
+let ed=null;
+function edOpen(id){if(!adm())return;const u=S.users.find(x=>x.id===id);if(!u)return;
+ ed={id:u.id,pf:u.pf||"",name:u.name||"",role:u.role,kanda:u.kanda||"",shift:u.shift||"",username:u.username||"",password:""};
+ draw();window.scrollTo({top:0,behavior:"smooth"})}
+function edCancel(){ed=null;draw()}
+function edCard(forStaff){
+ if(!adm()||!ed)return"";const u=S.users.find(x=>x.id===ed.id);if(!u){ed=null;return""}
+ const st=STAFF.includes(u.role);if(st!==forStaff)return"";
+ const roles=st?STAFF:(u.role==="Admin"?["Admin"]:["Supervisor","Afisa"]),opt=(a,v,blank)=>(blank?`<option value="">-</option>`:"")+a.map(x=>`<option ${v===x?"selected":""}>${esc(x)}</option>`).join("");
+ return `<div class="card" style="border-left:4px solid var(--pr)"><h2>✏️ Hariri taarifa: ${esc(u.name)} <span class="sb">${esc(u.role)}</span></h2>
+ <div class="row" style="margin-bottom:8px"><input class="grow" placeholder="PF No" value="${esc(ed.pf)}" oninput="ed.pf=this.value"><input class="grow" placeholder="Jina kamili" value="${esc(ed.name)}" oninput="ed.name=this.value">
+ <select onchange="ed.role=this.value" ${roles.length<2?"disabled":""}>${opt(roles,ed.role)}</select></div>
+ <div class="row" style="margin-bottom:8px">${st?`<label class="mu">Kanda:</label><select onchange="ed.kanda=this.value">${opt(KANDA.concat(ed.kanda&&!KANDA.includes(ed.kanda)?[ed.kanda]:[]),ed.kanda,true)}</select><label class="mu">Shift:</label><select onchange="ed.shift=this.value">${opt(SH,ed.shift,true)}</select>`
+ :`<input class="grow" placeholder="Username" autocomplete="off" value="${esc(ed.username)}" oninput="ed.username=this.value"><input class="grow" type="text" placeholder="Password mpya (acha wazi kubaki na ya sasa)" autocomplete="off" value="${esc(ed.password)}" oninput="ed.password=this.value">`}</div>
+ <div class="err" id="ede"></div><div class="row"><button onclick="edSave()">💾 Hifadhi</button><button class="sec" onclick="edCancel()">Ghairi</button></div></div>`}
+function edSave(){if(!adm()||!ed)return;const u=S.users.find(x=>x.id===ed.id),e=$("ede");if(!u){ed=null;draw();return}
+ const pf=ed.pf.trim(),n=ed.name.trim(),lg=!STAFF.includes(u.role);
+ if(!pf){e.textContent="Jaza PF No";return}
+ if(!n){e.textContent="Jaza jina kamili";return}
+ if(S.users.some(x=>x.id!==u.id&&String(x.pf||"").toLowerCase()===pf.toLowerCase())){e.textContent="PF No tayari inatumika na mtu mwingine";return}
+ let un=u.username,pw=u.password;
+ if(lg){un=ed.username.trim();if(!un){e.textContent="Jaza username";return}
+  if(S.users.some(x=>x.id!==u.id&&x.username===un)){e.textContent="Username tayari ipo";return}
+  if(ed.password){if(ed.password.length<4){e.textContent="Password mpya iwe na angalau herufi 4";return}pw=ed.password}}
+ u.pf=pf;u.name=n;u.role=ed.role;
+ if(lg){u.username=un;u.password=pw}else{u.kanda=ed.kanda;u.shift=ed.shift}
+ /* sawazisha nakala za jina/PF kwenye likizo na mauzo */
+ S.leaves.concat(S.svl).forEach(l=>{if(l.sid===u.id){l.name=n;l.pf=pf}});
+ S.mauzo.forEach(m=>{if(m.cid===u.id){m.cn=n;m.pf=pf}});
+ if(me&&me.id===u.id)$("who").textContent=u.name+" ("+u.role+")";
+ ed=null;save();draw();note("Taarifa zimehifadhiwa ✔")}
+
+/* ===== Admin: simamia shift zilizofunguliwa / zilizofungwa ===== */
+let shF=iso(new Date(Date.now()-6*864e5)),shT=iso(new Date()),shU="all",nsD=iso(new Date()),nsU="",nsS="Asubuhi",nsK="";
+const sups=()=>S.users.filter(u=>u.role==="Supervisor");
+const shUid=k=>Number(k.slice(11)),shDay=k=>k.slice(0,10);
+function shRows(){return Object.keys(S.shifts).filter(k=>shDay(k)>=shF&&shDay(k)<=shT&&(shU==="all"||String(shUid(k))===shU)).sort((a,b)=>shDay(a)<shDay(b)?1:shDay(a)>shDay(b)?-1:shUid(a)-shUid(b))}
+function shAdd(){if(!adm())return;const e=$("she");
+ if(!nsU){e.textContent="Chagua supervisor";return}
+ if(!nsD){e.textContent="Chagua tarehe";return}
+ const k=nsD+"|"+nsU;
+ if(S.shifts[k]){e.textContent="Supervisor huyu tayari ana shift tarehe hiyo. Ihariri kwenye jedwali hapa chini.";return}
+ S.shifts[k]=nsS;S.kd[k]=nsK;save();draw();note("Shift imefunguliwa ✔")}
+function shSet(k,f,v){if(!adm()||!S.shifts[k])return;const d=shDay(k),uid=shUid(k);
+ if(f==="sh")S.shifts[k]=v;else S.kd[k]=v;
+ /* mahudhurio yaliyojazwa na supervisor huyo siku hiyo yanafuata shift/kanda mpya */
+ Object.keys(S.att).forEach(x=>{const a=S.att[x];if(a&&x.startsWith(d+"|")&&a.by===uid){if(f==="sh")a.sh=v;else a.kd=v}});
+ save();draw();note("Shift imehifadhiwa ✔")}
+function shClose(k){if(!adm())return;ask("Funga shift hii sasa?",()=>{S.closed[k]=new Date().toLocaleTimeString("en-GB");save();draw()})}
+function shReopen(k){if(!adm())return;ask("Fungua tena shift hii?",()=>{delete S.closed[k];save();draw()})}
+function shTime(k,v){if(!adm()||!v)return;S.closed[k]=v.length===5?v+":00":v;save();note("Saa ya kufunga imehifadhiwa ✔")}
+function shDel(k){if(!adm())return;ask("Futa shift hii? Mahudhurio yaliyojazwa yatabaki, lakini supervisor ataweza kufungua shift upya.",()=>{delete S.shifts[k];delete S.kd[k];delete S.closed[k];save();draw();note("Shift imefutwa ✔")})}
+function vShf(){if(!adm())return"";
+ if(!KANDA.includes(nsK))nsK=KANDA[0];
+ const SP=sups(),R=shRows(),o=(a,v)=>a.map(x=>`<option ${v===x?"selected":""}>${esc(x)}</option>`).join(""),
+ supOpt=(v,all)=>(all?`<option value="all">Wote</option>`:`<option value="">Chagua supervisor</option>`)+SP.map(u=>`<option value="${u.id}" ${String(v)===String(u.id)?"selected":""}>${esc(mkLabel(u))}</option>`).join("");
+ let h=`<div class="card"><h2>➕ Fungua Shift kwa Supervisor</h2><div class="mu" style="margin-bottom:8px">Fungua shift kwa niaba ya supervisor kwa tarehe yoyote. Shift moja tu kwa supervisor kwa siku.</div>
+ <div class="row"><input type="date" value="${nsD}" onchange="nsD=this.value||nsD"><select onchange="nsU=this.value">${supOpt(nsU,false)}</select><select onchange="nsS=this.value">${o(SH,nsS)}</select><select onchange="nsK=this.value">${o(KANDA,nsK)}</select><button onclick="shAdd()">Fungua</button></div><div class="err" id="she"></div></div>
+ <div class="card"><h2>🕒 Shifts (${R.length})</h2><div class="row" style="margin-bottom:10px"><label class="mu">Kuanzia</label><input type="date" value="${shF}" onchange="shF=this.value||shF;draw()"><label class="mu">Hadi</label><input type="date" value="${shT}" onchange="shT=this.value||shT;draw()"><label class="mu">Supervisor</label><select onchange="shU=this.value;draw()">${supOpt(shU,true)}</select></div>
+ <div class="sc"><table><tr><th>Tarehe</th><th>Supervisor</th><th>Shift</th><th>Kanda</th><th>Hali</th><th>Waliojazwa / Hawajajazwa</th><th>Vitendo</th></tr>`;
+ R.forEach(k=>{const d=shDay(k),uid=shUid(k),sh=S.shifts[k],kd=S.kd[k]||"",cl=S.closed[k],
+  done=Object.keys(S.att).filter(x=>x.startsWith(d+"|")&&(S.att[x]||{}).by===uid).length,mis=missingFor(d,uid).length;
+  h+=`<tr><td>${fd(d)}</td><td>${esc(nm(uid))}</td><td><select onchange="shSet('${k}','sh',this.value)">${o(SH,sh)}</select></td><td><select onchange="shSet('${k}','kd',this.value)"><option value="">-</option>${o(KANDA.concat(kd&&!KANDA.includes(kd)?[kd]:[]),kd)}</select></td>
+  <td>${cl?`<span class="sb">🔒 Imefungwa</span> <input type="time" step="1" value="${esc(cl)}" onchange="shTime('${k}',this.value)" title="Saa ya kufunga">`:`<span class="sb">🟢 Imefunguliwa</span>`}</td>
+  <td>${done} / ${mis}</td>
+  <td><div class="btns">${cl?`<button onclick="shReopen('${k}')">🔓 Fungua tena</button>`:`<button class="del" onclick="shClose('${k}')">🔒 Funga</button>`}<button class="del" onclick="shDel('${k}')">Futa</button></div></td></tr>`});
+ h+=`${R.length?"":`<tr><td colspan="7" class="mu">Hakuna shift katika kipindi/kichujio hiki.</td></tr>`}</table></div></div>`;
+ return h}
+
+/* ===== Likizo ===== */
+const LT=["Likizo ya Mwaka","Likizo ya Uzazi","Likizo ya Ugonjwa","Likizo ya Masomo","Likizo ya Dharura"],LR=["Wote","Supervisor","Cashier","Customer Care","Afisa"],lrole=l=>(S.users.find(x=>x.id===l.sid)||{}).role,isLg=()=>lvK==="Supervisor"||lvK==="Afisa";
+let lvRF="",lvRT="",anf="",lvTy=LT[0],lvK="Cashier",lvQ="",lvF="",lvT="",svN="",svF="",svT="";
+/* ===== Kuchagua mfanyakazi kwa kuandika jina/PF (datalist) ===== */
+function lvPick(txt,pool){const q=String(txt||"").trim().toLowerCase();if(!q)return{e:"Andika au chagua jina la mfanyakazi"};
+ const byId=pool.find(u=>String(u.id)===String(txt));if(byId)return{u:byId};
+ let m=pool.filter(u=>mkLabel(u).toLowerCase()===q||String(u.name||"").toLowerCase()===q||String(u.pf||"").toLowerCase()===q);
+ if(!m.length)m=pool.filter(u=>mkLabel(u).toLowerCase().includes(q));
+ if(!m.length)return{e:"Hakuna mfanyakazi anayelingana na: "+String(txt).trim()};
+ if(m.length>1)return{e:"Majina "+m.length+" yanafanana. Andika jina kamili au PF No."};
+ return{u:m[0]}}
+function lvBox(id,val,groups,setter){const all=groups.reduce((a,g)=>a.concat(g[1]),[]),cu=all.find(u=>String(u.id)===String(val)),v=cu?mkLabel(cu):(val||"");
+ return `<input class="grow" list="${id}" placeholder="Andika jina au PF No, au chagua kwenye orodha" autocomplete="off" value="${esc(v)}" oninput="${setter}=this.value"><datalist id="${id}">${groups.map(([r,g])=>g.map(u=>`<option value="${esc(mkLabel(u))}" label="${esc(r+(STAFF.includes(u.role)?" ("+(u.kanda||"-")+", "+(u.shift||"Zote")+")":""))}"></option>`).join("")).join("")}</datalist>`}
+const allPool=()=>S.users.filter(u=>STAFF.includes(u.role)||(me.role!=="Supervisor"&&(u.role==="Supervisor"||u.role==="Afisa"))||(me.role==="Supervisor"&&u.id===me.id)),
+ svPool=()=>S.users.filter(u=>u.role===lvK&&(me.role!=="Supervisor"||u.id===me.id));
+const dd=(a,b)=>Math.round((new Date(b+"T00:00:00")-new Date(a+"T00:00:00"))/864e5);
+const stByPf=p=>staff().find(u=>String(u.pf||"").toLowerCase()===String(p).trim().toLowerCase());
+const lvEnd=l=>l.rep&&l.rep<l.to?l.rep:l.to;
+function lvInfo(l){const t=iso(new Date());
+ if(l.st==="pend")return{k:"pend",cls:"blinky",txt:"🟡 Inasubiri idhini ya Admin"};
+ if(l.rep)return{k:"rep",txt:"✔ Ameripoti kazini "+fd(l.rep)};
+ if(t<l.from)return{k:"soon",txt:"Inaanza baada ya siku "+dd(t,l.from)};
+ if(t>l.to)return{k:"end",txt:"Imeisha"};
+ const r=dd(t,l.to),w=r<=3;return{k:"on",warn:w&&!l.ack,done:w&&!!l.ack,txt:r===0?"Inaisha leo":"Zimebaki siku "+r}}
+const lvOk=l=>l.st!=="pend";
+function lvS(l){const t=iso(new Date());
+ if(!lvOk(l))return{k:"pend",cls:"blinky",txt:"🟡 Inasubiri idhini ya Admin/Afisa"};
+ if(l.rep)return{k:"rep",cls:"mu",txt:"✔ Ameripoti kazini "+fd(l.rep)};
+ if(t>l.to)return{k:"over",red:1,cls:"blink",txt:"🔴 Imevuka siku "+dd(l.to,t)+", hajaripoti"};
+ if(t<l.from)return{k:"soon",cls:"dotg",txt:"🟢 Imeidhinishwa, inaanza baada ya siku "+dd(t,l.from)};
+ const r=dd(t,l.to);return r<=3?{k:"on",red:1,cls:"blink",txt:"🔴 "+(r===0?"Inaisha leo":"Zimebaki siku "+r)}:{k:"on",cls:"dotg",txt:"🟢 Imeidhinishwa, zimebaki siku "+r}}
+const lvFlag=id=>S.leaves.some(l=>l.sid===id&&lvS(l).red)?' <span class="blink" title="Likizo imebaki siku 3 au imevuka">🔴</span>':"";
+function apLv(id){const l=S.leaves.concat(S.svl).find(x=>x.id===id);if(l&&(S.svl.includes(l)?canAct(l):mgr())){l.st="ok";save();draw();note("Likizo imeidhinishwa ✔")}}
+function repLv(id){const l=S.leaves.find(x=>x.id===id);if(l){l.rep=iso(new Date());save();draw();note("Mtumishi ameripoti, blink nyekundu imeondolewa ✔")}}
+const canAct=l=>adm()||(afs()&&lrole(l)!=="Afisa"&&l.sid!==me.id);
+function absFl(){const g={},out={};
+ Object.keys(S.att).forEach(k=>{const q=k.split("|");(g[q[1]]=g[q[1]]||[]).push([q[0],S.att[k].s])});
+ Object.keys(g).forEach(id=>{if(!S.users.some(u=>String(u.id)===id&&STAFF.includes(u.role)))return;
+  const a=g[id].sort((x,y)=>x[0]<y[0]?-1:1);let st=null,n=0;
+  const end=()=>{if(n>=5){const key=id+"|"+st;if(Math.floor(n/5)>Math.floor((S.abs[key]||0)/5))(out[id]=out[id]||[]).push({key,n})}};
+  a.forEach(r=>{if(r[1]==="Absent"){if(!n)st=r[0];n++}else{end();n=0}});end()});
+ return out}
+const abFlag=id=>{const f=absFl()[id];return f?` <span class="blink" title="Absent 5 mfululizo">🔴 Absent ${Math.max(...f.map(x=>x.n))} mfululizo</span>`+(mgr()?` <button class="sec" onclick="apAbs('${id}')">✔ Idhinisha</button>`:""):""};
+function apAbs(id){if(!mgr())return;const f=absFl()[id];if(!f)return;f.forEach(x=>S.abs[x.key]=x.n);save();draw();note("Imeidhinishwa, blink nyekundu imeondolewa ✔")}
+function absBanner(){const f=absFl(),ids=Object.keys(f);if(!ids.length)return"";
+ return `<div class="card" style="border-left:4px solid var(--bad)"><div class="blink">🔴 Wafanyakazi ${ids.length} wana Absent tano au zaidi mfululizo${mgr()?"":" (inasubiri idhini ya Afisa/Admin)"}</div>${ids.map(id=>{const u=S.users.find(x=>String(x.id)===id)||{name:"?"};return `<div class="row" style="margin-top:6px"><span>${esc(u.pf?u.pf+" - "+u.name:u.name)} - siku ${Math.max(...f[id].map(x=>x.n))}</span>${mgr()?`<button onclick="apAbs('${id}')">✔ Idhinisha</button>`:""}</div>`}).join("")}</div>`}
+function lvBanner(){if(!me)return"";if(tab==="lv")return absBanner();let h=absBanner();
+ const mine=l=>me.role!=="Supervisor"||lrole(l)==="Supervisor",all=S.leaves.map(l=>[l,0]).concat(S.svl.filter(mine).map(l=>[l,1])),
+ pe=all.filter(x=>!lvOk(x[0])&&(x[1]?canAct(x[0]):mgr())).map(x=>x[0]),ov=all.filter(x=>lvS(x[0]).red).map(x=>x[0]);
+ const go=l=>"tab='lv';lvK='"+(lrole(l)||"Cashier")+"';navOpen=false;draw()";
+ if(pe.length)h+=`<div class="card row" style="border-left:4px solid #d99a00"><span class="blinky">🟡 Likizo ${pe.length} zinasubiri idhini: ${pe.slice(0,3).map(l=>esc(l.name)).join(", ")}${pe.length>3?"...":""}</span><button class="sec" onclick="${go(pe[0])}">Angalia</button></div>`;
+ if(ov.length)h+=`<div class="card row" style="border-left:4px solid var(--bad)"><span class="blink">🔴 Likizo ${ov.length} zimebaki siku 3 au zimevuka (hawajaripoti): ${ov.slice(0,3).map(l=>esc(l.name)).join(", ")}${ov.length>3?"...":""}</span><button class="sec" onclick="${go(ov[0])}">Angalia</button></div>`;
+ return h}
+function ackLv(k,id){const l=S[k].find(x=>x.id===id);if(l){l.ack=iso(new Date());save();draw();note("Imehifadhiwa, blink imeondolewa ✔")}}
+function repSv(id){const l=S.svl.find(x=>x.id===id);if(l&&canAct(l)){l.rep=l.ack=iso(new Date());save();draw();note("Supervisor ameripoti, anaweza kuombewa likizo tena ✔")}}
+function ackAll(){let n=0;S.svl.forEach(l=>{if(lvInfo(l).warn){l.ack=iso(new Date());n++}});save();draw();note("Likizo "+n+" zimehifadhiwa, blink imeondolewa ✔")}
+function addSv(){if(me.role==="Supervisor"&&String(svN)!==String(me.id))return;const e=$("sve"),r=lvPick(svN,svPool()),u=r.u;
+ if(!u){e.textContent=r.e;return}
+ if(!svF||!svT){e.textContent="Jaza tarehe ya kuanza na kumaliza likizo";return}
+ if(svT<svF){e.textContent="Tarehe ya kumaliza haiwezi kuwa kabla ya kuanza";return}
+ if(S.svl.some(l=>l.sid===u.id&&!l.rep)){e.textContent="Supervisor huyu ana likizo ambayo bado haijakamilika. Haiwezi kuombwa nyingine hadi aripoti kazini.";return}
+ if(S.svl.some(l=>l.sid===u.id&&svF<=lvEnd(l)&&svT>=l.from)){e.textContent="Tarehe hizi zinagongana na likizo yake ya awali. Anza baada ya siku aliyoripoti.";return}
+ S.svl.push({id:Date.now(),sid:u.id,name:u.name,ty:lvTy,from:svF,to:svT,by:me.id,st:adm()?"ok":"pend"});svN="";svF="";svT="";save();draw();note(adm()?"Likizo ya supervisor imehifadhiwa ✔":"Likizo imetumwa, inasubiri idhini ya Admin 🟡")}
+function delSv(id){ask("Futa likizo hii?",()=>{S.svl=S.svl.filter(l=>l.id!==id);save();draw()})}
+const inRng=l=>(!lvRF||l.to>=lvRF)&&(!lvRT||l.from<=lvRT);
+const tySel=()=>`<select onchange="lvTy=this.value">${LT.map(x=>`<option ${lvTy===x?"selected":""}>${x}</option>`).join("")}</select>`;
+function vLikizo(){return `<div class="card"><div class="row"><label class="mu">Nafasi:</label><select onchange="lvK=this.value;draw()">${LR.map(x=>`<option value="${x}" ${lvK===x?"selected":""}>${x==="Wote"?"Wafanyakazi wote":x}</option>`).join("")}</select><button class="sec" onclick="lvXlsx()">📥 Excel</button><button class="sec" onclick="lvPdf()">📄 PDF</button></div><div class="row" style="margin-top:8px"><label class="mu">Onyesha likizo kuanzia</label><input type="date" value="${lvRF}" onchange="lvRF=this.value;draw()"><label class="mu">hadi</label><input type="date" value="${lvRT}" onchange="lvRT=this.value;draw()">${lvRF||lvRT?`<button class="sec" onclick="lvRF='';lvRT='';draw()">✖ Futa kichujio</button>`:""}</div><div class="mu" style="margin-top:6px">Kichujio kinaathiri orodha na Excel/PDF: zinaonekana likizo zote zinazogusa kipindi hicho.</div></div>`+(lvK==="Wote"?vAll():isLg()?vSv():vLv())}
+function addAll(){const e=$("ale"),r=lvPick(svN,allPool()),u=r.u;
+ if(!u){e.textContent=r.e;return}
+ if(me.role==="Supervisor"&&!STAFF.includes(u.role)&&u.id!==me.id)return;
+ if(!svF||!svT){e.textContent="Jaza tarehe ya kuanza na kumaliza likizo";return}
+ if(svT<svF){e.textContent="Tarehe ya kumaliza haiwezi kuwa kabla ya kuanza";return}
+ const st=STAFF.includes(u.role),A=st?S.leaves:S.svl;
+ if(A.some(l=>l.sid===u.id&&!l.rep)){e.textContent="Huyu ana likizo ambayo bado haijakamilika. Haiwezi kuombwa nyingine hadi aripoti kazini.";return}
+ if(A.some(l=>l.sid===u.id&&svF<=lvEnd(l)&&svT>=l.from)){e.textContent="Tarehe hizi zinagongana na likizo yake ya awali. Anza baada ya siku aliyoripoti.";return}
+ const b={id:Date.now(),sid:u.id,name:u.name,ty:lvTy,from:svF,to:svT,by:me.id,st:adm()?"ok":"pend"};
+ if(st)Object.assign(b,{pf:u.pf||"",kd:u.kanda||"",sh:u.shift||""});
+ A.push(b);svN="";svF="";svT="";save();draw();note(adm()?"Likizo imehifadhiwa ✔":"Likizo imetumwa, inasubiri idhini 🟡")}
+function lvData(){const nw=new Date(),all=S.leaves.concat(S.svl.filter(l=>me.role!=="Supervisor"||lrole(l)==="Supervisor")).filter(l=>(lvK==="Wote"||lrole(l)===lvK)&&inRng(l)).sort((a,b)=>a.from<b.from?-1:1),
+ cl=t=>String(t).replace(/[^\x20-\x7E]/g,"").trim(),
+ rows=all.map(l=>{const u=S.users.find(y=>y.id===l.sid)||{};return[l.pf||u.pf||"-",l.name,u.role||"-",l.ty||"-",fd(l.from),fd(l.to),dd(l.from,l.to)+1,cl(lvS(l).txt)]});
+ return{title:"Ripoti ya Likizo",meta:["Nafasi: "+(lvK==="Wote"?"Wafanyakazi wote":lvK),"Idadi ya likizo: "+rows.length,"Ime-export na: "+me.name+" ("+me.role+")","Muda: "+fd(iso(nw))+" "+nw.toLocaleTimeString("en-GB"),"Kipindi: "+(lvRF||lvRT?(lvRF?fd(lvRF):"mwanzo")+" hadi "+(lvRT?fd(lvRT):"mwisho"):"Zote")],
+ head:["PF No","Jina kamili","Nafasi","Aina ya likizo","Kuanzia","Hadi","Siku","Hali"],rows,fn:"Likizo_"+lvK.replace(/\s+/g,"")+(lvRF||lvRT?"_"+(lvRF||"mwanzo")+"_hadi_"+(lvRT||"mwisho"):"")+"_"+iso(nw)}}
+async function lvXlsx(){if(!window.ExcelJS){note("Maktaba ya Excel haijapakia");return}
+ const D=lvData(),wb=new ExcelJS.Workbook(),img=wb.addImage({base64:logo(),extension:"png"});
+ mkSheet(wb,"Likizo",[D.title].concat(D.meta),D.head,D.rows,img,[12,28,16,20,14,14,8,40]);
+ dlSave(D.fn+".xlsx",await wb.xlsx.writeBuffer())}
+function lvPdf(){if(!window.jspdf){note("Maktaba ya PDF haijapakia");return}
+ const D=lvData(),p=new window.jspdf.jsPDF({orientation:"landscape",unit:"pt",format:"a4"});
+ p.addImage(logo(),"PNG",30,24,120,40);p.setFontSize(14);p.text(D.title,170,38);p.setFontSize(9);D.meta.forEach((t,i)=>p.text(t,170,52+i*12));
+ p.autoTable({startY:106,head:[D.head],body:D.rows,styles:{fontSize:8,cellPadding:3},headStyles:{fillColor:[11,92,171]},margin:{left:30,right:30}});
+ const n=p.getNumberOfPages(),ft=D.meta[2]+" - "+D.meta[3];
+ for(let i=1;i<=n;i++){p.setPage(i);p.setFontSize(8);p.text(ft+"   |   Ukurasa "+i+"/"+n,30,p.internal.pageSize.getHeight()-14)}
+ dlSave(D.fn+".pdf",p.output("arraybuffer"))}
+function vAll(){
+ const mine=l=>me.role!=="Supervisor"||lrole(l)==="Supervisor",
+ R=S.leaves.filter(inRng).map(l=>({l,k:0})).concat(S.svl.filter(mine).filter(inRng).map(l=>({l,k:1}))).sort((a,b)=>((lvS(a.l).k==="rep")-(lvS(b.l).k==="rep"))||(a.l.to<b.l.to?-1:1)),
+ pp=allPool();
+ let h=pp.length?`<div class="card"><h2>Ongeza Likizo</h2><div class="row">${lvBox("dlAll",svN,LR.slice(1).map(r=>[r,pp.filter(u=>u.role===r)]).filter(g=>g[1].length),"svN")}</div>
+ <div class="row" style="margin-top:8px">${tySel()}<label class="mu">Kuanzia</label><input type="date" value="${svF}" onchange="svF=this.value"><label class="mu">Hadi</label><input type="date" value="${svT}" onchange="svT=this.value"><button onclick="addAll()">Hifadhi Likizo</button></div><div class="err" id="ale"></div></div>`:"";
+ h+=`<div class="card"><h2>Likizo za wafanyakazi wote (${R.length})</h2><div class="sc"><table><tr><th>PF No</th><th>Jina</th><th>Nafasi</th><th>Aina ya likizo</th><th>Kuanzia</th><th>Hadi</th><th>Siku</th><th>Hali</th><th></th></tr>`;
+ R.forEach(x=>{const l=x.l,i=lvS(l),u=S.users.find(y=>y.id===l.sid)||{};h+=`<tr${i.red?' style="background:rgba(180,35,24,.12)"':""}><td>${esc(l.pf||u.pf||"-")}</td><td>${esc(l.name)}</td><td>${esc(u.role||"-")}</td><td>${esc(l.ty||"-")}</td><td>${fd(l.from)}</td><td>${fd(l.to)}</td><td>${dd(l.from,l.to)+1}</td><td><span class="${i.cls}">${i.txt}</span></td><td>${i.k==="pend"&&canAct(l)?`<button onclick="apLv(${l.id})">✔ Idhinisha</button> `:""}${(i.k==="on"||i.k==="over")&&(x.k?canAct(l):!afs())?`<button onclick="${x.k?"repSv":"repLv"}(${l.id})">✔ Ameripoti</button> `:""}${adm()?`<button class="del" onclick="${x.k?"delSv":"delLv"}(${l.id})">${i.k==="pend"?"Kataa":"Futa"}</button>`:""}</td></tr>`});
+ if(!R.length)h+=`<tr><td colspan="9" class="mu">Hakuna likizo zilizosajiliwa bado.</td></tr>`;
+ return h+`</table></div></div>`}
+function vSv(){
+ const L=S.svl.filter(l=>lrole(l)===lvK&&inRng(l)&&(me.role!=="Supervisor"||lrole(l)==="Supervisor")).sort((a,b)=>((lvS(a).k==="rep")-(lvS(b).k==="rep"))||(a.to<b.to?-1:1)),sp=S.users.filter(u=>u.role===lvK&&(me.role!=="Supervisor"||u.id===me.id)),mySv=me.role==="Supervisor";
+ if(mySv)svN=me.id;
+ let h=mySv&&lvK!=="Supervisor"?"":`<div class="card"><h2>${mySv?"Omba Likizo Yangu":"Ongeza Likizo ya "+lvK}</h2><div class="row">${mySv?`<select class="grow" onchange="svN=this.value">${sp.map(u=>`<option value="${u.id}" selected>${esc(u.pf?u.pf+" - "+u.name:u.name)}</option>`).join("")}</select>`:lvBox("dlSv",svN,[[lvK,sp]],"svN")}</div>
+ <div class="row" style="margin-top:8px">${tySel()}<label class="mu">Kuanzia</label><input type="date" value="${svF}" onchange="svF=this.value"><label class="mu">Hadi</label><input type="date" value="${svT}" onchange="svT=this.value"><button onclick="addSv()">Hifadhi Likizo</button></div>
+ <div class="mu" style="margin-top:6px">Likizo ya Supervisor inasubiri idhini ya Afisa au Admin; ya Afisa inasubiri Admin (🟡). Ikiidhinishwa inakuwa 🟢. Ikibaki siku 3 au ikivuka inawaka 🔴 hadi aripoti kazini.</div><div class="err" id="sve"></div></div>`;
+ h+=`<div class="card"><h2>Likizo za ${lvK} (${L.length})</h2><div class="sc"><table><tr><th>PF No</th><th>Jina</th><th>Aina ya likizo</th><th>Kuanzia</th><th>Hadi</th><th>Siku</th><th>Hali</th><th></th></tr>`;
+ L.forEach(l=>{const i=lvS(l);h+=`<tr${i.red?' style="background:rgba(180,35,24,.12)"':""}><td>${esc(l.pf||(S.users.find(y=>y.id===l.sid)||{}).pf||"-")}</td><td>${esc(l.name)}</td><td>${esc(l.ty||"-")}</td><td>${fd(l.from)}</td><td>${fd(l.to)}</td><td>${dd(l.from,l.to)+1}</td><td><span class="${i.cls}">${i.txt}</span></td><td>${i.k==="pend"&&canAct(l)?`<button onclick="apLv(${l.id})">✔ Idhinisha</button> `:""}${(i.k==="on"||i.k==="over")&&canAct(l)?`<button onclick="repSv(${l.id})">✔ Ameripoti</button> `:""}${adm()?`<button class="del" onclick="delSv(${l.id})">${i.k==="pend"?"Kataa":"Futa"}</button>`:""}</td></tr>`});
+ if(!L.length)h+=`<tr><td colspan="8" class="mu">Hakuna likizo za ${lvK} bado.</td></tr>`;
+ return h+`</table></div></div>`}
+function lvSt(i){return i.k==="pend"?`<span class="blinky">${i.txt}</span>`:i.warn?`<span class="blink">🔴 ${i.txt}</span>`:i.done?`<span class="sb">✔ ${i.txt} (imehifadhiwa)</span>`:i.k==="on"||i.k==="soon"?`<span class="dotg">🟢 ${i.txt}</span>`:`<span class="mu">${i.txt}</span>`}
+function lvFind(){const q=String(lvQ).trim().toLowerCase();if(!q)return{e:"Chagua mfanyakazi kwenye orodha"};
+ const sl=staff().filter(u=>u.role===lvK);const byId=sl.find(u=>String(u.id)===String(lvQ));if(byId)return{u:byId};let m=sl.filter(u=>mkLabel(u).toLowerCase()===q||u.name.toLowerCase()===q||String(u.pf||"").toLowerCase()===q);
+ if(!m.length)m=sl.filter(u=>mkLabel(u).toLowerCase().includes(q));
+ if(!m.length)return{e:"Hakuna mfanyakazi aliyesajiliwa anayelingana na: "+lvQ.trim()};
+ if(m.length>1)return{e:"Majina "+m.length+" yanafanana. Andika jina kamili au PF No."};
+ return{u:m[0]}}
+function lvPool(){return["Cashier","Customer Care"].concat(me.role==="Supervisor"?[]:["Afisa"]).map(r=>[r,S.users.filter(u=>u.role===r)]).filter(x=>x[1].length)}
+function addLv(){const e=$("lve"),r=lvPick(lvQ,lvPool().reduce((a,x)=>a.concat(x[1]),[])),u=r.u;
+ if(!u){e.textContent=r.e;return}
+ if(!lvF||!lvT){e.textContent="Jaza tarehe ya kuanza na kumaliza likizo";return}
+ if(lvT<lvF){e.textContent="Tarehe ya kumaliza haiwezi kuwa kabla ya kuanza";return}
+ const st=STAFF.includes(u.role),A=st?S.leaves:S.svl;
+ if(A.some(l=>l.sid===u.id&&!l.rep)){e.textContent="Mfanyakazi huyu ana likizo ambayo bado haijakamilika (🟡/🟢/🔴). Haiwezi kuombwa nyingine hadi aripoti kazini.";return}
+ if(A.some(l=>l.sid===u.id&&lvF<=lvEnd(l)&&lvT>=l.from)){e.textContent="Tarehe hizi zinagongana na likizo yake ya awali. Anza baada ya siku aliyoripoti.";return}
+ const bk={id:Date.now(),sid:u.id,name:u.name,ty:lvTy,from:lvF,to:lvT,by:me.id,st:adm()?"ok":"pend"};
+ if(st)Object.assign(bk,{pf:u.pf||"",kd:u.kanda||"",sh:u.shift||""});
+ A.push(bk);lvK=u.role;lvQ="";lvF="";lvT="";save();draw();note(adm()?"Likizo imehifadhiwa ✔":"Likizo imetumwa, inasubiri idhini 🟡")}
+function delLv(id){ask("Futa likizo hii?",()=>{S.leaves=S.leaves.filter(l=>l.id!==id);save();draw()})}
+function vLv(){
+ const L=S.leaves.filter(l=>lrole(l)===lvK&&inRng(l)).sort((a,b)=>((lvInfo(a).k==="end")-(lvInfo(b).k==="end"))||(a.to<b.to?-1:1));
+ let h=`<div class="card"><h2>Ongeza Likizo</h2><div class="row">${lvBox("dlLv",lvQ,lvPool(),"lvQ")}</div>
+ <div class="row" style="margin-top:8px">${tySel()}<label class="mu">Kuanzia</label><input type="date" value="${lvF}" onchange="lvF=this.value"><label class="mu">Hadi</label><input type="date" value="${lvT}" onchange="lvT=this.value"><button onclick="addLv()">Hifadhi Likizo</button></div>
+ <div class="mu" style="margin-top:6px">Andika jina au PF No ya mfanyakazi (au chagua kwenye orodha inayojitokeza). Likizo inayojazwa na supervisor inasubiri idhini ya Admin au Afisa (🟡). Ikiidhinishwa inakuwa 🟢; ikibaki siku 3 au ikivuka inawaka 🔴 hadi staff aripoti kazini na ubonyeze "Ameripoti".</div><div class="err" id="lve"></div></div>`;
+ h+=`<div class="card"><h2>Orodha ya Likizo (${L.length})</h2><div class="sc"><table><tr><th>PF No</th><th>Jina kamili</th><th>Aina ya likizo</th><th>Kanda</th><th>Shift</th><th>Kuanzia</th><th>Hadi</th><th>Siku</th><th>Hali</th>${adm()?"<th></th>":""}</tr>`;
+ L.forEach(l=>{const i=lvS(l),sf=S.users.find(x=>x.id===l.sid)||{kanda:l.kd,shift:l.sh};
+  h+=`<tr${i.red?' style="background:rgba(180,35,24,.12)"':""}><td>${esc(l.pf||"-")}</td><td>${esc(l.name)}</td><td>${esc(l.ty||"-")}</td><td>${esc(sf.kanda||"-")}</td><td>${esc(sf.shift||"Zote")}</td><td>${fd(l.from)}</td><td>${fd(l.to)}</td><td>${dd(l.from,l.to)+1}</td><td><span class="${i.cls}">${i.txt}</span> ${i.k==="pend"&&mgr()?`<button onclick="apLv(${l.id})">✔ Idhinisha</button>`:""}${(i.k==="on"||i.k==="over")&&!afs()?`<button onclick="repLv(${l.id})">✔ Ameripoti</button>`:""}</td>${adm()?`<td><button class="del" onclick="delLv(${l.id})">${i.k==="pend"?"Kataa":"Futa"}</button></td>`:""}</tr>`});
+ if(!L.length)h+=`<tr><td colspan="10" class="mu">Hakuna likizo zilizosajiliwa bado.</td></tr>`;
+ return h+`</table></div></div>`}
+
+/* ===== Mauzo ===== */
+let mkR="all",rt="att",rlk="Wote",ryR="all";
+let mvK="Morocco",mvN="",mvD=iso(new Date()),mvKa="Morocco",mvSh="Asubuhi",mvC="",mvS="",mvT="",mvP="",mvR="",mvE=null,mfK="all",mfSh="all";
+const tzs=n=>Number(n||0).toLocaleString("en-US");
+function mCtx(){const t=iso(new Date());
+ if(adm())return{d:mvD,kd:mvKa,sh:mvSh,ok:true};
+ if(me.role==="Supervisor"){const sh=S.shifts[t+"|"+me.id],kd=S.kd[t+"|"+me.id];return{d:t,kd,sh,ok:!!sh,cl:!!S.closed[t+"|"+me.id]}}
+ return{ok:false}}
+function addVit(){if(!adm())return;const n=mvN.trim(),e=$("mve"),l=S.vit[mvK]=S.vit[mvK]||[];
+ if(!n){e.textContent="Andika jina la kituo";return}
+ if(l.some(x=>x.toLowerCase()===n.toLowerCase())){e.textContent="Kituo hiki tayari kipo kwenye kanda hii";return}
+ l.push(n);mvN="";save();draw();note("Kituo kimeongezwa ✔")}
+function delVit(k,i){ask("Ondoa kituo hiki?",()=>{(S.vit[k]||[]).splice(i,1);save();draw()})}
+function addMau(){const c=mCtx(),e=$("mue");
+ if(!c.ok||c.cl)return;
+ if(!mvFull()){e.textContent="Jaza visanduku vyote kabla ya kuhifadhi";return}
+ const q=mvC.trim().toLowerCase(),cs=staff().filter(u=>u.role==="Cashier"&&(!c.sh||!u.shift||u.shift===c.sh)&&(!c.kd||!u.kanda||u.kanda===c.kd));
+ if(!q){e.textContent="Andika au chagua cashier";return}
+ let m=cs.filter(u=>mkLabel(u).toLowerCase()===q||u.name.toLowerCase()===q||String(u.pf||"").toLowerCase()===q);
+ if(!m.length)m=cs.filter(u=>mkLabel(u).toLowerCase().includes(q));
+ if(!m.length){e.textContent="Hakuna cashier anayelingana na \""+mvC.trim()+"\" kwenye shift/kanda hii";return}
+ if(m.length>1){e.textContent="Majina "+m.length+" yanafanana. Andika jina kamili au PF No.";return}
+ const u=m[0],vs=S.vit[c.kd]||[],vq=mvS.trim().toLowerCase();
+ if(!vq){e.textContent="Andika au chagua kituo";return}
+ let vm=vs.filter(x=>x.toLowerCase()===vq);
+ if(!vm.length)vm=vs.filter(x=>x.toLowerCase().includes(vq));
+ if(vm.length!==1){e.textContent=vm.length?"Vituo "+vm.length+" vinafanana. Andika jina kamili la kituo.":"Kituo hakipo kwenye orodha ya kanda hii. Andika au chagua kituo sahihi.";return}
+ const vt=vm[0];
+ const dup=S.mauzo.filter(m=>m.d===c.d&&m.kd===c.kd&&m.sh===c.sh&&m.id!==mvE);
+ if(dup.some(m=>m.cid===u.id)){e.textContent="Cashier huyu ameshajazwa mauzo kwenye shift hii";return}
+ if(dup.some(m=>m.vt===vt)){e.textContent="Kituo hiki kimeshajazwa mauzo kwenye shift hii";return}
+ const tk=+mvT,tp=+mvP,rl=+mvR;
+ if(![tk,tp,rl].every(n=>isFinite(n)&&n>=0)){e.textContent="Weka namba sahihi (0 au zaidi) kwenye tiketi, topup na roll";return}
+ if(!Number.isInteger(tk)||tk%100!==0){e.textContent="Mauzo ya tiketi lazima yaishe na 00 (mfano 15000, 20500)";return}
+ if(!Number.isInteger(tp)||tp%10!==0){e.textContent="Topup lazima iishie na 0 (mfano 5000, 12350)";return}
+ if(mvE){const o=S.mauzo.find(x=>x.id===mvE);
+  if(!o||!(adm()||o.by===me.id)){e.textContent="Huwezi kuedit rekodi hii";return}
+  Object.assign(o,{cid:u.id,cn:u.name,pf:u.pf||"",vt,tk,tp,rl,ed:me.id})}
+ else S.mauzo.push({id:Date.now(),d:c.d,kd:c.kd,sh:c.sh,cid:u.id,cn:u.name,pf:u.pf||"",vt,tk,tp,rl,by:me.id});
+ const was=!!mvE;mvE=null;mvC="";mvT="";mvP="";mvR="";save();draw();note(was?"Mauzo yamebadilishwa ✔":"Mauzo yamehifadhiwa ✔")}
+function delMau(id){if(!adm())return;ask("Futa rekodi hii ya mauzo?",()=>{S.mauzo=S.mauzo.filter(m=>m.id!==id);if(mvE===id)mvE=null;save();draw()})}
+const mvFull=()=>!!(mvC.trim()&&mvS.trim()&&mvT!==""&&mvP!==""&&mvR!=="");
+function mvChk(){const b=$("mvb");if(b)b.disabled=!mvFull()}
+function editMau(id){const m=S.mauzo.find(x=>x.id===id),c=mCtx();
+ if(!m||!c.ok||c.cl||!(adm()||m.by===me.id))return;
+ if(adm()){mvD=m.d;mvKa=m.kd;mvSh=m.sh}
+ const u=S.users.find(x=>x.id===m.cid);
+ mvE=id;mvC=u?mkLabel(u):(m.pf?m.pf+" - ":"")+m.cn;mvS=m.vt;mvT=String(m.tk);mvP=String(m.tp);mvR=m.rl==null?"":String(m.rl);draw();note("Hariri kisha bonyeza Sasisha Mauzo")}
+function cancelMau(){mvE=null;mvC="";mvT="";mvP="";mvR="";draw()}
+function vMauzo(){const c=mCtx(),sv=me.role==="Supervisor";let h="";
+ if(sv&&!c.ok)h+=`<div class="card"><b>⚠ Fungua shift kwanza.</b> Nenda kwenye "Mark Attendance", fungua shift na kanda yako kabla ya kujaza mauzo.</div>`;
+ else if(c.ok){const cs=staff().filter(u=>u.role==="Cashier"&&(!c.sh||!u.shift||u.shift===c.sh)&&(!c.kd||!u.kanda||u.kanda===c.kd)),vs=S.vit[c.kd]||[],used=S.mauzo.filter(m=>m.d===c.d&&m.kd===c.kd&&m.sh===c.sh&&m.id!==mvE);
+  h+=`<div class="card"><h2>${mvE?"✏️ Hariri Mauzo":"Jaza Mauzo"}</h2><div class="row" style="margin-bottom:10px">`+(adm()?`<span class="mu">Tarehe: ${fd(c.d)}</span><select onchange="mvKa=this.value;mvS='';mvC='';draw()">${KANDA.map(x=>`<option ${mvKa===x?"selected":""}>${x}</option>`).join("")}</select><select onchange="mvSh=this.value;mvC='';draw()">${SH.map(x=>`<option ${mvSh===x?"selected":""}>${x}</option>`).join("")}</select>`:`<span class="mu">Tarehe: ${fd(c.d)}</span><span class="sb">Shift: ${c.sh}</span><span class="sb">Kanda: ${esc(c.kd||"-")}</span>`)+`</div>`+
+  (c.cl?`<div class="mu">🔒 Shift yako imefungwa, huwezi kujaza mauzo.</div>`:(vs.length?"":`<div class="mu" style="margin-bottom:8px">Admin bado hajaweka vituo vya kanda ya ${esc(c.kd||"-")}.</div>`)+`<div class="row"><input class="grow" id="mvc" list="mvcl" placeholder="Andika au chagua Cashier (jina / PF No)..." autocomplete="off" value="${esc(mvC)}" oninput="mvC=this.value;mvChk()"><datalist id="mvcl">${cs.filter(u=>!used.some(m=>m.cid===u.id)).map(u=>`<option value="${esc(mkLabel(u))}"></option>`).join("")}</datalist><input class="grow" id="mvs" list="mvsl" placeholder="Andika au chagua Kituo..." autocomplete="off" value="${esc(mvS)}" oninput="mvS=this.value;mvChk()"><datalist id="mvsl">${vs.filter(x=>!used.some(m=>m.vt===x)).map(x=>`<option value="${esc(x)}"></option>`).join("")}</datalist><input class="grow" type="number" min="0" inputmode="numeric" placeholder="Mauzo ya tiketi (huishia 00)" step="100" value="${esc(mvT)}" oninput="mvT=this.value;mvChk()"><input class="grow" type="number" min="0" inputmode="numeric" placeholder="Topup (huishia 0)" step="10" value="${esc(mvP)}" oninput="mvP=this.value;mvChk()"><input class="grow" type="number" min="0" inputmode="numeric" placeholder="Matumizi ya roll" value="${esc(mvR)}" oninput="mvR=this.value;mvChk()"><button id="mvb" onclick="addMau()" ${mvFull()?"":"disabled"}>${mvE?"Sasisha Mauzo":"Hifadhi Mauzo"}</button>${mvE?`<button class="sec" onclick="cancelMau()">Ghairi</button>`:""}</div><div class="err" id="mue"></div>`)+`</div>`}
+ const R=S.mauzo.filter(m=>sv?(m.d===c.d&&m.kd===c.kd&&m.sh===c.sh):(m.d===mvD&&(mfK==="all"||m.kd===mfK)&&(mfSh==="all"||m.sh===mfSh))).sort((a,b)=>a.id-b.id);
+ let tk=0,tp=0,tr=0;
+ h+=`<div class="card"><h2>Orodha ya Mauzo (${R.length})</h2>`+(sv?"":`<div class="row" style="margin-bottom:10px"><label class="mu">Tarehe</label><input type="date" value="${mvD}" onchange="mvD=this.value||mvD;draw()"><select onchange="mfK=this.value;draw()">${["all"].concat(KANDA).map(x=>`<option value="${x}" ${mfK===x?"selected":""}>${x==="all"?"Kanda zote":x}</option>`).join("")}</select><select onchange="mfSh=this.value;draw()">${["all"].concat(SH).map(x=>`<option value="${x}" ${mfSh===x?"selected":""}>${x==="all"?"Shift zote":x}</option>`).join("")}</select></div>`)+`<div class="sc"><table><tr><th>Tarehe</th><th>Cashier</th><th>Kituo</th><th>Kanda</th><th>Shift</th><th>Tiketi</th><th>Topup</th><th>Roll</th><th>Jumla</th><th>Ameingiza</th><th></th></tr>`;
+ R.forEach(m=>{tk+=m.tk;tp+=m.tp;tr+=m.rl||0;h+=`<tr><td>${fd(m.d)}</td><td>${esc(m.pf?m.pf+" - "+m.cn:m.cn)}</td><td>${esc(m.vt)}</td><td>${esc(m.kd||"-")}</td><td>${esc(m.sh||"-")}</td><td>${tzs(m.tk)}</td><td>${tzs(m.tp)}</td><td>${m.rl==null?"-":tzs(m.rl)}</td><td><b>${tzs(m.tk+m.tp)}</b></td><td>${esc(nm(m.by))}</td><td>${adm()||(sv&&!c.cl&&m.by===me.id)?`<button class="sec" onclick="editMau(${m.id})">✏️ Edit</button>${adm()?` <button class="del" onclick="delMau(${m.id})">Futa</button>`:""}`:""}</td></tr>`});
+ h+=R.length?`<tr><th colspan="5">JUMLA (TZS)</th><th>${tzs(tk)}</th><th>${tzs(tp)}</th><th>${tzs(tr)}</th><th>${tzs(tk+tp)}</th><th colspan="2"></th></tr>`:`<tr><td colspan="11" class="mu">Hakuna mauzo yaliyojazwa bado.</td></tr>`;
+ return h+`</table></div></div>`}
+
+/* ===== Layout (mgawanyo wa staff kwa kanda) ===== */
+let lyS="Asubuhi",lyR="Cashier";
+const lyQ=()=>{S.layout=S.layout||{};const a=S.layout[lyS]=S.layout[lyS]||{};return a[lyR]=a[lyR]||{}};
+const lyPool=()=>staff().filter(u=>u.role===lyR&&(!u.shift||u.shift===lyS));
+const lyTot=()=>{const q=lyQ();return KANDA.reduce((a,k)=>a+(q[k]||0),0)};
+function setLq(i,v){if(!adm()||KANDA[i]===undefined)return;lyQ()[KANDA[i]]=Math.max(0,Math.floor(+v)||0);save();draw()}
+const lyVis=u=>(u.cyc||[]).filter(k=>KANDA.includes(k));
+function lyRun(){if(!adm())return;const q=lyQ(),pool=lyPool(),tot=lyTot();
+ if(!tot){note("Weka idadi ya staff kwenye angalau kanda moja");return}
+ if(tot>pool.length){note("Idadi uliyoweka ("+tot+") imezidi staff waliopo ("+pool.length+")");return}
+ ask("Gawanya "+tot+" "+lyR+" wa shift ya "+lyS+" kwa nasibu (random)? Hakuna atakayerudi kanda aliyowahi kupangwa hadi mzunguko wake ukamilike.",()=>{
+  const shf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  pool.forEach(u=>{if(!u.cyc)u.cyc=u.kanda?[u.kanda]:[];u.cyc=lyVis(u);if(KANDA.every(k=>u.cyc.includes(k)))u.cyc=[]});
+  const slots=shf(KANDA.flatMap(k=>Array(q[k]||0).fill(k))),P=shf(pool.slice());
+  /* Matching: kila nafasi (slot) ipate staff asiyewahi kuwepo kwenye kanda hiyo kwenye mzunguko wake */
+  const own=slots.map(()=>null),by={};
+  const aug=(si,seen)=>{const k=slots[si];for(const u of shf(P.filter(x=>!x.cyc.includes(k)))){if(seen.has(u.id))continue;seen.add(u.id);
+    if(by[u.id]===undefined||aug(by[u.id],seen)){by[u.id]=si;own[si]=u;return true}}return false};
+  let miss=[];slots.forEach((k,si)=>{if(!aug(si,new Set()))miss.push(si)});
+  const left=shf(P.filter(u=>by[u.id]===undefined));
+  miss.forEach(si=>{const u=left.shift();if(u){by[u.id]=si;own[si]=u}});
+  pool.forEach(u=>{if(u.shift===lyS){u.shift="";u.kanda=""}});
+  own.forEach((u,si)=>{if(!u)return;const k=slots[si];u.shift=lyS;u.kanda=k;if(!u.cyc.includes(k))u.cyc.push(k)});
+  save();draw();note(miss.length?"Imegawanywa. Wafanyakazi "+miss.length+" wamerudia kanda kwa sababu ya idadi ndogo ya staff.":"Staff wamegawanywa kwa nasibu ✔")})}
+function lyResetCyc(){if(!adm())return;ask("Anza mzunguko upya kwa "+lyR+" wote (futa kumbukumbu ya kanda walizopitia)?",()=>{staff().filter(u=>u.role===lyR).forEach(u=>{u.cyc=u.kanda?[u.kanda]:[]});save();draw();note("Mzunguko umeanza upya ✔")})}
+function vLay(){
+ if(!adm())return`<div class="card">Ukurasa huu ni wa Admin tu.</div>`;
+ const q=lyQ(),pool=lyPool(),tot=lyTot(),all=staff().filter(u=>u.role===lyR),oth=all.filter(u=>u.shift&&u.shift!==lyS).length,
+ free=pool.filter(u=>u.shift!==lyS||!u.kanda).length,bad=tot>pool.length;
+ let h=`<div class="card"><h2>📐 Layout ya Staff</h2><div class="mu" style="margin-bottom:10px">Chagua shift na nafasi, weka idadi ya staff kwa kila kanda, kisha mfumo utawagawanya kwenye kanda.</div><div class="row"><label class="mu">Shift:</label><select onchange="lyS=this.value;draw()">${SH.map(x=>`<option ${lyS===x?"selected":""}>${x}</option>`).join("")}</select><label class="mu">Nafasi:</label><select onchange="lyR=this.value;draw()">${STAFF.map(x=>`<option ${lyR===x?"selected":""}>${x}</option>`).join("")}</select></div></div>`;
+ h+=`<div class="card"><h2>${esc(lyR)} - Shift ya ${lyS}</h2><div class="mu" style="margin-bottom:8px">Wanaopatikana: <b>${pool.length}</b>${oth?` (wengine ${oth} wako shift nyingine)`:""}. Bado hawajapangwa kanda: <b>${free}</b>.</div><div class="sc"><table><tr><th>Kanda</th><th>Idadi unayotaka</th><th>Waliopangwa sasa</th><th>Majina (kanda alizopitia/jumla)</th></tr>`;
+ KANDA.forEach((k,i)=>{const a=all.filter(u=>u.shift===lyS&&u.kanda===k);
+  h+=`<tr><td><b>${esc(k)}</b></td><td><input type="number" min="0" inputmode="numeric" style="width:90px" value="${q[k]||0}" onchange="setLq(${i},this.value)"></td><td><span class="sb">${a.length}</span></td><td class="mu" style="white-space:normal;min-width:200px">${a.length?a.map(u=>esc(u.name)+` <span class="sb">${lyVis(u).length}/${KANDA.length}</span>`).join(" "):"-"}</td></tr>`});
+ h+=`<tr><th>JUMLA</th><th><span class="${bad?"blink":""}">${tot} / ${pool.length}</span></th><th colspan="2"></th></tr></table></div>`+(bad?`<div class="err">Idadi imezidi staff waliopo. Punguza idadi au ongeza staff kwenye menyu ya Staff.</div>`:"")+`<div class="row" style="margin-top:10px"><button onclick="lyRun()" ${tot&&!bad?"":"disabled"}>🔀 Gawanya Staff (Random)</button><button class="sec" onclick="lyResetCyc()">♻️ Anza mzunguko upya</button></div><div class="mu" style="margin-top:8px">Ugawaji ni wa nasibu. Staff hapangiwi kanda aliyowahi kupangwa hadi apitie kanda zote (mzunguko ukamilike); ndipo mzunguko mpya unaanza.</div></div>`;
+ return h}
+
+/* ===== Theme ===== */
+const THEMES=[["white","☀️ White"],["dark","🌙 Dark"],["orange","🟠 Orange"]];
+function getTheme(){try{const t=localStorage.getItem("ams_theme");if(THEMES.some(x=>x[0]===t))return t}catch(e){}return"white"}
+function applyTheme(t){document.documentElement.setAttribute("data-theme",t);
+ const l=$("lth");if(l)l.innerHTML=THEMES.map(x=>`<button class="${x[0]===t?"on":""}" onclick="setTheme('${x[0]}')">${x[1]}</button>`).join("")}
+function setTheme(t){try{localStorage.setItem("ams_theme",t)}catch(e){}applyTheme(t);if(me)draw()}
+function vSet(){
+ if(!KANDA.includes(mvK))mvK=KANDA[0];
+ const t=getTheme();
+ let h=`<div class="card"><h2>🎨 Theme</h2><div class="mu" style="margin-bottom:8px">Chagua muonekano wa mfumo.</div><div class="row themes">${THEMES.map(x=>`<button class="${x[0]===t?"on":""}" onclick="setTheme('${x[0]}')">${x[1]}</button>`).join("")}</div></div>`;
+ if(adm())h+=`<div class="card"><h2>📍 Kanda (${KANDA.length})</h2><div class="mu" style="margin-bottom:8px">Ongeza au ondoa kanda. Huwezi kuondoa kanda ambayo ina wafanyakazi waliopangwa.</div><div class="row"><input class="grow" id="kdn" placeholder="Jina la kanda mpya" onkeydown="if(event.key==='Enter')addKd()"><button onclick="addKd()">Ongeza Kanda</button></div><div class="err" id="kde"></div><div class="row">${KANDA.map((x,i)=>`<span class="sb">${esc(x)} <button class="del" onclick="delKd(${i})">✖</button></span>`).join("")}</div>
+ <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line,#8884)"><h3 style="margin:0 0 6px">🚏 Vituo vya kanda</h3><div class="mu" style="margin-bottom:8px">Chagua kanda kisha ongeza au ondoa vituo vyake.</div><div class="row"><select onchange="mvK=this.value;draw()">${KANDA.map(x=>`<option ${mvK===x?"selected":""}>${esc(x)}</option>`).join("")}</select><input class="grow" id="mvn" placeholder="Jina la kituo" value="${esc(mvN)}" oninput="mvN=this.value" onkeydown="if(event.key==='Enter')addVit()"><button onclick="addVit()">Ongeza Kituo</button></div><div class="err" id="mve"></div><div class="row">${(S.vit[mvK]||[]).length?(S.vit[mvK]||[]).map((x,i)=>`<span class="sb">${esc(x)} <button class="del" onclick="delVit('${esc(mvK)}',${i})">✖</button></span>`).join(""):`<span class="mu">Bado hakuna kituo kwenye kanda ya ${esc(mvK)}.</span>`}</div></div></div>`;
+ h+=`<div class="card"><h2>🔑 Badilisha Password</h2><div class="mu" style="margin-bottom:8px">Ingiza password ya sasa kisha password mpya (angalau herufi 4).</div><div class="row"><input class="grow" id="cp0" type="password" placeholder="Password ya sasa" autocomplete="current-password"><input class="grow" id="cp1" type="password" placeholder="Password mpya" autocomplete="new-password"><input class="grow" id="cp2" type="password" placeholder="Rudia password mpya" autocomplete="new-password"><button onclick="chPw()">Badilisha</button></div><div class="err" id="cpe"></div></div>`;
+ return h}
+function fixKd(){const f=KANDA[0]||"";[ "okd","sk","mvK","mvKa"].forEach(v=>{if(!KANDA.includes(eval(v)))eval(v+"=f")});if(rk!=="all"&&!KANDA.includes(rk))rk="all";if(mfK!=="all"&&!KANDA.includes(mfK))mfK="all"}
+function addKd(){if(!adm())return;const i=$("kdn"),e=$("kde"),n=i.value.trim();
+ if(!n){e.textContent="Andika jina la kanda";return}
+ if(/[<>"']/.test(n)){e.textContent="Jina lisiwe na alama < > \" '";return}
+ if(KANDA.some(x=>x.toLowerCase()===n.toLowerCase())){e.textContent="Kanda hii tayari ipo";return}
+ KANDA.push(n);save();draw();note("Kanda imeongezwa ✔")}
+function delKd(i){if(!adm())return;const k=KANDA[i];if(k===undefined)return;
+ if(KANDA.length<=1){note("Lazima abaki na angalau kanda moja");return}
+ const n=S.users.filter(u=>u.kanda===k).length;
+ if(n){note("Huwezi kuondoa "+k+": kuna wafanyakazi "+n+" wamepangwa humo. Wahamishie kanda nyingine kwanza.");return}
+ ask("Ondoa kanda ya "+k+"? Rekodi za zamani zitabaki.",()=>{const j=KANDA.indexOf(k);if(j>-1)KANDA.splice(j,1);fixKd();save();draw();note("Kanda imeondolewa ✔")})}
+function chPw(){const o=$("cp0").value,a=$("cp1").value,b=$("cp2").value,e=$("cpe");
+ if(!me||me.password!==o){e.textContent="Password ya sasa si sahihi";return}
+ if(a.length<4){e.textContent="Password mpya iwe na angalau herufi 4";return}
+ if(a!==b){e.textContent="Password mpya hazifanani";return}
+ if(a===o){e.textContent="Password mpya lazima iwe tofauti na ya zamani";return}
+ const u=S.users.find(x=>x.id===me.id);if(u)u.password=a;me.password=a;save();draw();note("Password imebadilishwa ✔")}
+function resetPw(id){const i=$("pw_"+id),v=i?i.value:"";if(v.length<4){note("Password mpya iwe na angalau herufi 4");return}
+ const u=S.users.find(x=>x.id===id);if(!u)return;u.password=v;save();i.value="";note("Password ya "+u.name+" imebadilishwa ✔")}
+applyTheme(getTheme());
+initSync();
+$("p").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
+</script>
+</body>
+</html>
